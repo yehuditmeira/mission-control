@@ -9,6 +9,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Force dynamic rendering - SQLite doesn't work in static generation
+  output: 'standalone',
 };
 
 export default nextConfig;

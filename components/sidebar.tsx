@@ -17,6 +17,8 @@ import {
   ChevronDown,
   ChevronRight,
   Bot,
+  Network,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PROJECTS } from '@/lib/projects';
@@ -30,6 +32,8 @@ const navItems = [
   { href: '/calendar', label: 'Calendar', icon: Calendar },
   { href: '/cron', label: 'Cron Jobs', icon: Clock },
   { href: '/memory', label: 'Memory', icon: Brain },
+  { href: '/org', label: 'Organization', icon: Network },
+  { href: '/office', label: 'Agent Office', icon: Building2 },
 ];
 
 // Pages that show project tabs in sidebar

@@ -4,6 +4,32 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --background-2: 220 14% 96%;
+    --foreground: 224 20% 12%;
+    --foreground-dim: 224 10% 46%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 20% 12%;
+    --primary: 263 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 93%;
+    --secondary-foreground: 224 20% 12%;
+    --muted: 220 14% 93%;
+    --muted-foreground: 224 10% 46%;
+    --accent: 220 14% 93%;
+    --accent-foreground: 224 20% 12%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 87%;
+    --border-bright: 220 13% 78%;
+    --input: 220 13% 87%;
+    --ring: 263 90% 56%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 222 20% 7%;
     --background-2: 222 18% 10%;
     --foreground: 225 20% 93%;
@@ -26,14 +52,13 @@
     --border-bright: 224 18% 27%;
     --input: 223 18% 18%;
     --ring: 263 90% 66%;
-    --radius: 0.5rem;
   }
 
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-200;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-200;
     font-family: var(--font-mono), monospace;
   }
   h1, h2, h3, h4, h5, h6 {

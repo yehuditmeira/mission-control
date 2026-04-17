@@ -111,15 +111,15 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        <Link href="/">
+        <Link href="/platforms">
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-slate-600 transition-all">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
                 <LayoutGrid size={16} className="text-purple-400" />
               </div>
-              <span className="font-medium text-sm">The Mrkt Drop</span>
+              <span className="font-medium text-sm">Platforms</span>
             </div>
-            <p className="text-xs text-slate-400">Affiliate Flow platform view</p>
+            <p className="text-xs text-slate-400">Social media channels</p>
           </div>
         </Link>
       </div>

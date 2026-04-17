@@ -19,6 +19,7 @@ import {
   Bot,
   Network,
   Building2,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PROJECTS } from '@/lib/projects';
@@ -34,6 +35,7 @@ const navItems = [
   { href: '/memory', label: 'Memory', icon: Brain },
   { href: '/org', label: 'Organization', icon: Network },
   { href: '/office', label: 'Agent Office', icon: Building2 },
+  { href: '/docs', label: 'Docs', icon: FileText },
 ];
 
 // Pages that show project tabs in sidebar

@@ -1,55 +1,62 @@
 'use client';
 
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Project } from '@/lib/types';
+import { Filter } from 'lucide-react';
+
+export function ProjectSwitcher() {
+  return (
+    <Suspense fallback={<div className="h-9" />}>
+      <ProjectSwitcherInner />
+    </Suspense>
+  );
+}
 
 function ProjectSwitcherInner() {
-  const [projects, setProjects] = useState<Project[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentProject = searchParams.get('project') || 'all';
+  const pathname = usePathname();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selected, setSelected] = useState<string>('all');
 
   useEffect(() => {
     fetch('/api/projects')
-      .then((res) => res.json())
-      .then(setProjects);
+      .then(r => r.json())
+      .then((data: Project[]) => {
+        setProjects(data.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
+      });
   }, []);
 
-  const handleChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === 'all') {
+  useEffect(() => {
+    const projectParam = searchParams.get('project');
+    setSelected(projectParam || 'all');
+  }, [searchParams]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const projectId = e.target.value;
+    const params = new URLSearchParams(searchParams);
+    if (projectId === 'all') {
       params.delete('project');
     } else {
-      params.set('project', value);
+      params.set('project', projectId);
     }
-    const query = params.toString();
-    router.push(`${window.location.pathname}${query ? `?${query}` : ''}`);
+    router.push(`${pathname}?${params}`);
   };
 
   return (
     <div className="flex items-center gap-2">
-      <label className="text-sm text-muted-foreground">Project:</label>
+      <Filter className="w-4 h-4 text-neutral-400" />
       <select
-        value={currentProject}
-        onChange={(e) => handleChange(e.target.value)}
-        className="text-sm bg-white border border-neutral-200 rounded-md px-3 py-1.5 text-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-300"
+        value={selected}
+        onChange={handleChange}
+        className="h-9 rounded-md border border-input bg-background px-3 text-sm"
       >
         <option value="all">All Projects</option>
-        {projects.map((p) => (
-          <option key={p.id} value={p.id.toString()}>
-            {p.name}
-          </option>
+        {projects.map(p => (
+          <option key={p.id} value={p.id.toString()}>{p.name}</option>
         ))}
       </select>
     </div>
-  );
-}
-
-export function ProjectSwitcher() {
-  return (
-    <Suspense fallback={<div className="text-sm text-muted-foreground">Loading...</div>}>
-      <ProjectSwitcherInner />
-    </Suspense>
   );
 }

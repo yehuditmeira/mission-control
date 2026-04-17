@@ -16,8 +16,8 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
-import { ProjectSwitcher } from '@/components/project-switcher';
 import { Task } from '@/lib/types';
+import { Columns3 } from 'lucide-react';
 
 const COLUMNS = [
   { id: 'backlog', label: 'Backlog', dotColor: '#787774' },
@@ -32,7 +32,7 @@ function TaskCard({ task, isDragging }: { task: TaskWithProject; isDragging?: bo
   return (
     <div className={`bg-white rounded-md border border-neutral-200 px-3 py-2.5 hover:bg-neutral-50 transition-colors ${isDragging ? 'opacity-50 shadow-lg' : ''}`}>
       <span className="text-sm text-neutral-800">{task.title}</span>
-      {task.project_name && (
+      {task.project_name && !task.project_color?.includes('#EC') && !task.project_color?.includes('#A8') && !task.project_color?.includes('#F5') && (
         <div className="flex items-center gap-1.5 mt-1.5">
           <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: task.project_color }} />
           <span className="text-[11px] text-neutral-400">{task.project_name}</span>
@@ -84,16 +84,36 @@ function KanbanContent() {
   const projectFilter = searchParams.get('project') || 'all';
   const [tasks, setTasks] = useState<TaskWithProject[]>([]);
   const [activeTask, setActiveTask] = useState<TaskWithProject | null>(null);
+  const [projectName, setProjectName] = useState<string>('');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const fetchTasks = useCallback(() => {
     const params = new URLSearchParams();
     if (projectFilter !== 'all') params.set('project_id', projectFilter);
-    fetch(`/api/tasks?${params}`).then(r => r.json()).then(setTasks);
+    fetch(`/api/tasks?${params}`).then(r => r.json()).then((data: TaskWithProject[]) => {
+      setTasks(data);
+      // Get project name from first task if filtered
+      if (projectFilter !== 'all' && data.length > 0 && data[0].project_name) {
+        setProjectName(data[0].project_name);
+      } else if (projectFilter === 'all') {
+        setProjectName('All Projects');
+      }
+    });
   }, [projectFilter]);
 
-  useEffect(() => { fetchTasks(); }, [fetchTasks]);
+  const fetchProjectName = useCallback(async () => {
+    if (projectFilter !== 'all') {
+      const res = await fetch('/api/projects');
+      const projects = await res.json();
+      const project = projects.find((p: { id: number; name: string }) => p.id.toString() === projectFilter);
+      if (project) setProjectName(project.name);
+    } else {
+      setProjectName('All Projects');
+    }
+  }, [projectFilter]);
+
+  useEffect(() => { fetchTasks(); fetchProjectName(); }, [fetchTasks, fetchProjectName]);
 
   const getTasksByStatus = (status: string) => tasks.filter(t => t.status === status);
 
@@ -166,9 +186,14 @@ function KanbanContent() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Columns3 className="w-6 h-6 text-neutral-700" />
         <h1 className="text-2xl font-bold text-neutral-900">Kanban Board</h1>
-        <ProjectSwitcher />
+        {projectName && projectName !== 'All Projects' && (
+          <span className="text-sm text-neutral-500 ml-2">
+            — {projectName}
+          </span>
+        )}
       </div>
 
       <DndContext

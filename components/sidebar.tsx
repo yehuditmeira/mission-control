@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import {
   LayoutDashboard,
+  LayoutGrid,
   CheckSquare,
   Columns3,
   StickyNote,
@@ -12,13 +14,17 @@ import {
   Clock,
   Brain,
   PanelsLeftRight,
-  Settings,
+  ChevronDown,
+  ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PROJECTS } from '@/lib/projects';
 import { ProjectTabs } from './project-tabs';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Mission Control', icon: LayoutDashboard },
+  { href: '/', label: 'The Mrkt Drop', icon: LayoutGrid },
   { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
   { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/notes', label: 'Notes', icon: StickyNote },
@@ -30,16 +36,48 @@ const navItems = [
 // Pages that show project tabs in sidebar
 const projectSpecificPages = ['/kanban', '/gantt'];
 
+// Static mock agent data — structured for live data later
+const agentsByProject: Record<string, { name: string; status: 'working' | 'idle' | 'blocked'; task: string }[]> = {
+  'affiliate-flow': [
+    { name: 'Pin Generator', status: 'working', task: 'Creating daily pins' },
+    { name: 'SEO Writer', status: 'idle', task: '' },
+  ],
+  'lead-hunter': [
+    { name: 'Lead Scraper', status: 'idle', task: '' },
+    { name: 'Outreach Bot', status: 'blocked', task: 'Waiting for API key' },
+  ],
+  'paydirect': [],
+  'personal-assistant': [
+    { name: 'Scheduler', status: 'working', task: 'Processing calendar' },
+  ],
+};
+
+const statusIndicator = {
+  working: 'bg-emerald-400 animate-pulse',
+  idle: 'bg-[hsl(var(--foreground-dim))]',
+  blocked: 'bg-red-400',
+};
+
 export function Sidebar() {
   const pathname = usePathname();
+  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set(['affiliate-flow']));
 
   const isProjectView = projectSpecificPages.some(page => pathname.startsWith(page));
 
+  const toggleProject = (id: string) => {
+    setExpandedProjects((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
-    <aside className="w-60 h-screen bg-neutral-50 flex flex-col fixed left-0 top-0 border-r border-neutral-200/80">
+    <aside className="w-60 h-screen bg-[hsl(var(--background))] flex flex-col fixed left-0 top-0 border-r border-[hsl(var(--border))]">
       {/* Logo */}
       <div className="px-4 py-4">
-        <h1 className="text-sm font-semibold text-neutral-800 tracking-tight">
+        <h1 className="text-sm font-semibold text-[hsl(var(--foreground))] tracking-tight">
           Mission Control
         </h1>
       </div>
@@ -55,11 +93,11 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                 isActive
-                  ? 'bg-neutral-200/70 text-neutral-900 font-medium'
-                  : 'text-neutral-500 hover:bg-neutral-200/40 hover:text-neutral-700'
+                  ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium'
+                  : 'text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
               )}
             >
-              <item.icon className={cn('w-4 h-4', isActive ? 'text-neutral-700' : 'text-neutral-400')} />
+              <item.icon className={cn('w-4 h-4', isActive ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--foreground-dim))]')} />
               {item.label}
             </Link>
           );
@@ -70,7 +108,7 @@ export function Sidebar() {
       {isProjectView && (
         <>
           <div className="mt-6 px-4 mb-2">
-            <h2 className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+            <h2 className="text-[10px] font-semibold text-[hsl(var(--foreground-dim))] uppercase tracking-wider">
               {pathname.startsWith('/kanban') ? 'Kanban Board' : pathname.startsWith('/gantt') ? 'Timeline' : 'Project'}
             </h2>
           </div>
@@ -80,12 +118,74 @@ export function Sidebar() {
         </>
       )}
 
-      {/* Secondary Navigation */}
-      <div className="mt-auto px-2 pb-4">
+      {/* Agent Activity */}
+      <div className="mt-6 flex-1 overflow-y-auto px-2">
+        <div className="px-2 mb-2">
+          <h2 className="text-[10px] font-semibold text-[hsl(var(--foreground-dim))] uppercase tracking-wider flex items-center gap-1.5">
+            <Bot size={10} />
+            Agent Activity
+          </h2>
+        </div>
+
+        <div className="space-y-0.5">
+          {PROJECTS.map((project) => {
+            const agents = agentsByProject[project.id] ?? [];
+            const isExpanded = expandedProjects.has(project.id);
+            const activeCount = agents.filter(a => a.status === 'working').length;
+
+            return (
+              <div key={project.id}>
+                <button
+                  onClick={() => toggleProject(project.id)}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))] transition-colors"
+                >
+                  {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: project.color }}
+                  />
+                  <span className="flex-1 text-left truncate">{project.name}</span>
+                  {activeCount > 0 && (
+                    <span className="text-[10px] text-emerald-400">{activeCount}</span>
+                  )}
+                </button>
+
+                {isExpanded && agents.length > 0 && (
+                  <div className="ml-5 pl-2 border-l border-[hsl(var(--border))] space-y-0.5 mt-0.5 mb-1">
+                    {agents.map((agent) => (
+                      <div
+                        key={agent.name}
+                        className="flex items-start gap-2 px-2 py-1 rounded text-[11px]"
+                      >
+                        <span className={cn('w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0', statusIndicator[agent.status])} />
+                        <div className="min-w-0">
+                          <div className="text-[hsl(var(--foreground))] truncate">{agent.name}</div>
+                          {agent.task && (
+                            <div className="text-[hsl(var(--foreground-dim))] truncate">{agent.task}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {isExpanded && agents.length === 0 && (
+                  <div className="ml-5 pl-2 border-l border-[hsl(var(--border))] mt-0.5 mb-1">
+                    <div className="px-2 py-1 text-[10px] text-[hsl(var(--foreground-dim))]">No agents</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Views */}
+      <div className="px-2 pb-4">
         {!isProjectView && (
           <>
             <div className="px-4 mb-2">
-              <h2 className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+              <h2 className="text-[10px] font-semibold text-[hsl(var(--foreground-dim))] uppercase tracking-wider">
                 Views
               </h2>
             </div>
@@ -95,11 +195,11 @@ export function Sidebar() {
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/kanban'
-                    ? 'bg-neutral-200/70 text-neutral-900 font-medium'
-                    : 'text-neutral-500 hover:bg-neutral-200/40 hover:text-neutral-700'
+                    ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium'
+                    : 'text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
                 )}
               >
-                <Columns3 className={cn('w-4 h-4', pathname === '/kanban' ? 'text-neutral-700' : 'text-neutral-400')} />
+                <Columns3 className={cn('w-4 h-4', pathname === '/kanban' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--foreground-dim))]')} />
                 Kanban
               </Link>
               <Link
@@ -107,11 +207,11 @@ export function Sidebar() {
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/gantt'
-                    ? 'bg-neutral-200/70 text-neutral-900 font-medium'
-                    : 'text-neutral-500 hover:bg-neutral-200/40 hover:text-neutral-700'
+                    ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium'
+                    : 'text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
                 )}
               >
-                <GanttChart className={cn('w-4 h-4', pathname === '/gantt' ? 'text-neutral-700' : 'text-neutral-400')} />
+                <GanttChart className={cn('w-4 h-4', pathname === '/gantt' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--foreground-dim))]')} />
                 Timeline
               </Link>
             </div>

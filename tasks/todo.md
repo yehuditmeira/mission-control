@@ -4,7 +4,7 @@
 A Notion/Asana hybrid productivity app. Simple, clean, local-first. Built with Next.js + SQLite + Tailwind + shadcn/ui.
 
 ## Projects System
-- Default projects: Merchant Services, Affiliate Flow, Personal
+- Default projects: merchant_services, affiliate_flow, Personal
 - User can add/remove projects
 - Every item (task, note, event) belongs to a project or is "unassigned"
 - All views support "all projects" or filter by single project

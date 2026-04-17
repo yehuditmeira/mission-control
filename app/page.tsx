@@ -11,8 +11,7 @@ import {
   Pin,
   FileText,
   Share2,
-  Video,
-  Twitter
+  Video
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -97,7 +96,7 @@ export default function HomePage() {
                   { name: 'WhatsApp', start: 3, duration: 4, color: 'bg-green-600', icon: MessageSquare },
                   { name: 'Facebook', start: 4, duration: 4, color: 'bg-blue-600', icon: Share2 },
                   { name: 'TikTok', start: 5, duration: 4, color: 'bg-black', icon: Video },
-                  { name: 'Twitter/X', start: 6, duration: 4, color: 'bg-slate-800', icon: Twitter },
+                  { name: 'Twitter/X', start: 6, duration: 4, color: 'bg-slate-800', icon: Share2 },
                 ].map((platform, i) => {
                   const Icon = platform.icon;
                   return (

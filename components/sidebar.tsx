@@ -23,8 +23,8 @@ import { PROJECTS } from '@/lib/projects';
 import { ProjectTabs } from './project-tabs';
 
 const navItems = [
-  { href: '/dashboard', label: 'Mission Control', icon: LayoutDashboard },
-  { href: '/', label: 'The Mrkt Drop', icon: LayoutGrid },
+  { href: '/', label: 'Mission Control', icon: LayoutDashboard },
+  { href: '/mrkt-drop', label: 'The Mrkt Drop', icon: LayoutGrid },
   { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
   { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/notes', label: 'Notes', icon: StickyNote },

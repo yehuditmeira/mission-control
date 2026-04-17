@@ -1,34 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const db = getDb();
-  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(params.id);
-  if (!project) return NextResponse.json({ error: 'not found' }, { status: 404 });
+  const { data: project, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('id', params.id)
+    .single();
+
+  if (error || !project) {
+    return NextResponse.json({ error: 'not found' }, { status: 404 });
+  }
+
   return NextResponse.json(project);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const db = getDb();
   const body = await req.json();
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  
+  const updateData: Record<string, any> = {};
+  if (body.name !== undefined) updateData.name = body.name;
+  if (body.color !== undefined) updateData.color = body.color;
+  if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
 
-  if (body.name !== undefined) { fields.push('name = ?'); values.push(body.name); }
-  if (body.color !== undefined) { fields.push('color = ?'); values.push(body.color); }
-  if (body.sort_order !== undefined) { fields.push('sort_order = ?'); values.push(body.sort_order); }
+  if (Object.keys(updateData).length === 0) {
+    return NextResponse.json({ error: 'nothing to update' }, { status: 400 });
+  }
 
-  if (fields.length === 0) return NextResponse.json({ error: 'nothing to update' }, { status: 400 });
+  const { data: project, error } = await supabase
+    .from('projects')
+    .update(updateData)
+    .eq('id', params.id)
+    .select()
+    .single();
 
-  values.push(params.id);
-  db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+  if (error) {
+    console.error('Error updating project:', error);
+    return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
+  }
 
-  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(params.id);
   return NextResponse.json(project);
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const db = getDb();
-  db.prepare('DELETE FROM projects WHERE id = ?').run(params.id);
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', params.id);
+
+  if (error) {
+    console.error('Error deleting project:', error);
+    return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }

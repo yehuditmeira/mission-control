@@ -1,45 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
-  const db = getDb();
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get('project_id');
   const status = searchParams.get('status');
 
-  let query = `
-    SELECT t.*, p.name as project_name, p.color as project_color
-    FROM tasks t
-    LEFT JOIN projects p ON t.project_id = p.id
-    WHERE 1=1
-  `;
-  const params: unknown[] = [];
+  let query = supabase
+    .from('tasks')
+    .select('*, projects(name, color)')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
 
   if (projectId && projectId !== 'all') {
-    query += ' AND t.project_id = ?';
-    params.push(projectId);
+    query = query.eq('project_id', projectId);
   }
   if (status) {
-    query += ' AND t.status = ?';
-    params.push(status);
+    query = query.eq('status', status);
   }
 
-  query += ' ORDER BY t.sort_order, t.created_at DESC';
+  const { data: tasks, error } = await query;
 
-  const tasks = db.prepare(query).all(...params);
+  if (error) {
+    console.error('Error fetching tasks:', error);
+    return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
+  }
 
-  // Attach subtasks to each task
-  const subtaskStmt = db.prepare('SELECT * FROM subtasks WHERE task_id = ? ORDER BY sort_order');
-  const tasksWithSubtasks = (tasks as Record<string, unknown>[]).map((task) => ({
+  // Fetch subtasks for each task
+  const taskIds = (tasks || []).map((t: any) => t.id);
+  let subtasksMap: Record<number, any[]> = {};
+
+  if (taskIds.length > 0) {
+    const { data: subtasks } = await supabase
+      .from('subtasks')
+      .select('*')
+      .in('task_id', taskIds)
+      .order('sort_order', { ascending: true });
+
+    subtasksMap = (subtasks || []).reduce((acc: Record<number, any[]>, st: any) => {
+      if (!acc[st.task_id]) acc[st.task_id] = [];
+      acc[st.task_id].push(st);
+      return acc;
+    }, {});
+  }
+
+  const tasksWithSubtasks = (tasks || []).map((task: any) => ({
     ...task,
-    subtasks: subtaskStmt.all(task.id),
+    project_name: task.projects?.name ?? null,
+    project_color: task.projects?.color ?? null,
+    subtasks: subtasksMap[task.id] || [],
   }));
 
   return NextResponse.json(tasksWithSubtasks);
 }
 
 export async function POST(req: NextRequest) {
-  const db = getDb();
   const body = await req.json();
   const { title, description, project_id, status, priority, author, due_date, start_date } = body;
 
@@ -47,24 +62,36 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'title required' }, { status: 400 });
   }
 
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM tasks').get() as { max: number | null };
-  const sortOrder = (maxOrder.max ?? -1) + 1;
+  // Get max sort_order
+  const { data: maxTask } = await supabase
+    .from('tasks')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .single();
 
-  const result = db.prepare(`
-    INSERT INTO tasks (title, description, project_id, status, priority, author, due_date, start_date, sort_order)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    title,
-    description || null,
-    project_id || null,
-    status || 'todo',
-    priority || 'medium',
-    author || 'user',
-    due_date || null,
-    start_date || null,
-    sortOrder
-  );
+  const sortOrder = (maxTask?.sort_order ?? -1) + 1;
 
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
+  const { data: task, error } = await supabase
+    .from('tasks')
+    .insert({
+      title,
+      description: description || null,
+      project_id: project_id || null,
+      status: status || 'todo',
+      priority: priority || 'medium',
+      author: author || 'user',
+      due_date: due_date || null,
+      start_date: start_date || null,
+      sort_order: sortOrder,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating task:', error);
+    return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
+  }
+
   return NextResponse.json(task, { status: 201 });
 }

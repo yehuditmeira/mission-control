@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
-  const db = getDb();
   const body = await req.json();
   const { task_id, title } = body;
 
@@ -10,10 +9,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'task_id and title required' }, { status: 400 });
   }
 
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM subtasks WHERE task_id = ?').get(task_id) as { max: number | null };
-  const sortOrder = (maxOrder.max ?? -1) + 1;
+  // Get max sort_order for this task
+  const { data: maxSubtask } = await supabase
+    .from('subtasks')
+    .select('sort_order')
+    .eq('task_id', task_id)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .single();
 
-  const result = db.prepare('INSERT INTO subtasks (task_id, title, sort_order) VALUES (?, ?, ?)').run(task_id, title, sortOrder);
-  const subtask = db.prepare('SELECT * FROM subtasks WHERE id = ?').get(result.lastInsertRowid);
+  const sortOrder = (maxSubtask?.sort_order ?? -1) + 1;
+
+  const { data: subtask, error } = await supabase
+    .from('subtasks')
+    .insert({ task_id, title, sort_order: sortOrder })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating subtask:', error);
+    return NextResponse.json({ error: 'Failed to create subtask' }, { status: 500 });
+  }
+
   return NextResponse.json(subtask, { status: 201 });
 }

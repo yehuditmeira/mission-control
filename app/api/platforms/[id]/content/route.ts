@@ -1,34 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const db = getDb();
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
   const contentType = searchParams.get('content_type');
 
-  let query = 'SELECT * FROM content_items WHERE platform_id = ?';
-  const queryParams: unknown[] = [id];
+  let query = supabase
+    .from('content_items')
+    .select('*')
+    .eq('platform_id', id)
+    .order('created_at', { ascending: false });
 
   if (status) {
-    query += ' AND status = ?';
-    queryParams.push(status);
+    query = query.eq('status', status);
   }
   if (contentType) {
-    query += ' AND content_type = ?';
-    queryParams.push(contentType);
+    query = query.eq('content_type', contentType);
   }
 
-  query += ' ORDER BY created_at DESC';
+  const { data: items, error } = await query;
 
-  const items = db.prepare(query).all(...queryParams);
+  if (error) {
+    console.error('Error fetching content items:', error);
+    return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
+  }
+
   return NextResponse.json(items);
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const db = getDb();
   const body = await req.json();
   const { content_type, title, description, body: contentBody, media_urls, affiliate_links, status, scheduled_for, ai_generated } = body;
 
@@ -36,22 +39,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'title required' }, { status: 400 });
   }
 
-  const result = db.prepare(`
-    INSERT INTO content_items (platform_id, content_type, title, description, body, media_urls, affiliate_links, status, scheduled_for, ai_generated)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    content_type || null,
-    title,
-    description || null,
-    contentBody || null,
-    media_urls || null,
-    affiliate_links || null,
-    status || 'draft',
-    scheduled_for || null,
-    ai_generated ?? 0
-  );
+  const { data: item, error } = await supabase
+    .from('content_items')
+    .insert({
+      platform_id: id,
+      content_type: content_type || null,
+      title,
+      description: description || null,
+      body: contentBody || null,
+      media_urls: media_urls || null,
+      affiliate_links: affiliate_links || null,
+      status: status || 'draft',
+      scheduled_for: scheduled_for || null,
+      ai_generated: ai_generated ?? false,
+    })
+    .select()
+    .single();
 
-  const item = db.prepare('SELECT * FROM content_items WHERE id = ?').get(result.lastInsertRowid);
+  if (error) {
+    console.error('Error creating content item:', error);
+    return NextResponse.json({ error: 'Failed to create content' }, { status: 500 });
+  }
+
   return NextResponse.json(item, { status: 201 });
 }

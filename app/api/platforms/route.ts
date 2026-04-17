@@ -1,50 +1,43 @@
 // =====================================================
 // API Route: /api/platforms
-// CRUD operations for marketing platforms
+// CRUD operations for marketing platforms (Supabase)
 // =====================================================
 
 import { NextRequest } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    const db = getDb();
-    
-    // Return empty data during build or if DB unavailable
-    if (!db) {
-      return Response.json({ platforms: [] });
-    }
-    
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const phase = searchParams.get('phase');
 
-    let query = `
-      SELECT 
-        p.*,
-        (SELECT COUNT(*) FROM platform_tasks WHERE platform_id = p.id AND status = 'done') as completed_tasks,
-        (SELECT COUNT(*) FROM platform_tasks WHERE platform_id = p.id) as total_tasks,
-        (SELECT COUNT(*) FROM content_items WHERE platform_id = p.id AND status = 'published') as published_items
-      FROM platforms p
-      WHERE 1=1
-    `;
-    
-    const params: any[] = [];
-    
+    let query = supabase
+      .from('platforms')
+      .select(`
+        *,
+        completed_tasks:platform_tasks(status).eq(status, done).count(),
+        total_tasks:platform_tasks.count(),
+        published_items:content_items(status).eq(status, published).count()
+      `);
+
     if (status) {
-      query += ' AND p.status = ?';
-      params.push(status);
+      query = query.eq('status', status);
     }
     if (phase) {
-      query += ' AND p.phase = ?';
-      params.push(phase);
+      query = query.eq('phase', parseInt(phase));
     }
-    
-    query += ' ORDER BY p.priority, p.start_date';
 
-    const platforms = db.prepare(query).all(...params);
+    query = query.order('priority', { ascending: true });
 
-    return Response.json({ platforms });
+    const { data: platforms, error } = await query;
+
+    if (error) {
+      console.error('Error fetching platforms:', error);
+      return Response.json({ error: 'Failed to fetch platforms' }, { status: 500 });
+    }
+
+    return Response.json({ platforms: platforms || [] });
   } catch (error) {
     console.error('Error fetching platforms:', error);
     return Response.json({ error: 'Failed to fetch platforms' }, { status: 500 });
@@ -53,25 +46,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const db = getDb();
     const data = await request.json();
 
-    const result = db.prepare(`
-      INSERT INTO platforms (slug, name, description, priority, status, phase, start_date, autonomous_target_date, config)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      data.slug,
-      data.name,
-      data.description || null,
-      data.priority || 0,
-      data.status || 'pending',
-      data.phase || 1,
-      data.start_date || null,
-      data.autonomous_target_date || null,
-      data.config ? JSON.stringify(data.config) : null
-    );
+    const insertData = {
+      slug: data.slug,
+      name: data.name,
+      description: data.description || null,
+      priority: data.priority || 0,
+      status: data.status || 'pending',
+      phase: data.phase || 1,
+      start_date: data.start_date || null,
+      autonomous_target_date: data.autonomous_target_date || null,
+      config: data.config || null,
+    };
 
-    return Response.json({ id: result.lastInsertRowid, ...data }, { status: 201 });
+    const { data: platform, error } = await supabase
+      .from('platforms')
+      .insert(insertData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating platform:', error);
+      return Response.json({ error: 'Failed to create platform' }, { status: 500 });
+    }
+
+    return Response.json(platform, { status: 201 });
   } catch (error) {
     console.error('Error creating platform:', error);
     return Response.json({ error: 'Failed to create platform' }, { status: 500 });

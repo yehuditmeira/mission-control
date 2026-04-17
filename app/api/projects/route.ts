@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  const db = getDb();
-  const projects = db.prepare('SELECT * FROM projects ORDER BY sort_order').all();
+  const { data: projects, error } = await supabase
+    .from('projects')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching projects:', error);
+    return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
+  }
+
   return NextResponse.json(projects);
 }
 
 export async function POST(req: NextRequest) {
-  const db = getDb();
   const body = await req.json();
   const { name, color } = body;
 
@@ -16,11 +23,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'name and color required' }, { status: 400 });
   }
 
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM projects').get() as { max: number | null };
-  const sortOrder = (maxOrder.max ?? -1) + 1;
+  // Get max sort_order
+  const { data: maxProject } = await supabase
+    .from('projects')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .single();
 
-  const result = db.prepare('INSERT INTO projects (name, color, sort_order) VALUES (?, ?, ?)').run(name, color, sortOrder);
+  const sortOrder = (maxProject?.sort_order ?? -1) + 1;
 
-  const project = db.prepare('SELECT * FROM projects WHERE id = ?').get(result.lastInsertRowid);
+  const { data: project, error } = await supabase
+    .from('projects')
+    .insert({ name, color, sort_order: sortOrder })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating project:', error);
+    return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
+  }
+
   return NextResponse.json(project, { status: 201 });
 }

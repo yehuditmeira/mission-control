@@ -1,54 +1,141 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+// =====================================================
+// Database abstraction layer - migrated to Supabase
+// Replaces better-sqlite3 with @supabase/supabase-js
+// =====================================================
 
-const DB_PATH = path.join(process.cwd(), 'data', 'mission-control.db');
+import { supabase } from './supabase';
 
-let db: Database.Database | null = null;
+// Re-export supabase client for direct usage if needed
+export { supabase };
 
-export function getDb(): Database.Database | null {
+// Helper type for query results
+type QueryResult<T> = {
+  data: T | null;
+  error: Error | null;
+};
+
+// Legacy DB helper - returns null during build/static generation
+export function getDb() {
   // Skip DB during build/static generation
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return null;
   }
-
-  if (db) return db;
-
-  try {
-    // Ensure data directory exists
-    const dataDir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-
-    db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
-
-    // Run schema
-    const schemaPath = path.join(process.cwd(), 'lib', 'schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf-8');
-    db.exec(schema);
-
-    // Run platform marketing schema updates
-    const schemaUpdatesPath = path.join(process.cwd(), 'lib', 'schema-updates.sql');
-    if (fs.existsSync(schemaUpdatesPath)) {
-      const schemaUpdates = fs.readFileSync(schemaUpdatesPath, 'utf-8');
-      db.exec(schemaUpdates);
-    }
-
-    // Seed default projects if empty
-    const count = db.prepare('SELECT COUNT(*) as count FROM projects').get() as { count: number };
-    if (count.count === 0) {
-      const insert = db.prepare('INSERT INTO projects (name, color, sort_order) VALUES (?, ?, ?)');
-      insert.run('Merchant Services', '#EC4899', 0);
-      insert.run('Affiliate Flow', '#A855F7', 1);
-      insert.run('Personal', '#F9A8D4', 2);
-    }
-
-    return db;
-  } catch (e) {
-    console.error('DB init error:', e);
-    return null;
-  }
+  return supabase;
 }
+
+// Table-specific query helpers for migration compatibility
+export const dbHelpers = {
+  // Projects
+  projects: {
+    getAll: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      return { data, error };
+    },
+    getById: async (id: string | number) => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single();
+      return { data, error };
+    },
+  },
+
+  // Tasks
+  tasks: {
+    getAll: async (filters?: { project_id?: string; status?: string }) => {
+      let query = supabase
+        .from('tasks')
+        .select('*, projects(name, color), subtasks(*)')
+        .order('sort_order', { ascending: true });
+      
+      if (filters?.project_id && filters.project_id !== 'all') {
+        query = query.eq('project_id', filters.project_id);
+      }
+      if (filters?.status) {
+        query = query.eq('status', filters.status);
+      }
+      
+      return query;
+    },
+    getById: async (id: string | number) => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*, projects(name, color), subtasks(*)')
+        .eq('id', id)
+        .single();
+      return { data, error };
+    },
+  },
+
+  // Notes
+  notes: {
+    getAll: async (filters?: { project_id?: string }) => {
+      let query = supabase
+        .from('notes')
+        .select('*, projects(name, color)')
+        .order('pinned', { ascending: false })
+        .order('updated_at', { ascending: false });
+      
+      if (filters?.project_id && filters.project_id !== 'all') {
+        query = query.eq('project_id', filters.project_id);
+      }
+      
+      return query;
+    },
+  },
+
+  // Subtasks
+  subtasks: {
+    getByTaskId: async (taskId: string | number) => {
+      const { data, error } = await supabase
+        .from('subtasks')
+        .select('*')
+        .eq('task_id', taskId)
+        .order('sort_order', { ascending: true });
+      return { data, error };
+    },
+  },
+
+  // Events
+  events: {
+    getAll: async (filters?: { start?: string; end?: string; project_id?: string }) => {
+      let query = supabase
+        .from('events')
+        .select('*, projects(name, color)')
+        .order('start_datetime', { ascending: true });
+      
+      if (filters?.start) {
+        query = query.gte('start_datetime', filters.start);
+      }
+      if (filters?.end) {
+        query = query.lte('start_datetime', filters.end);
+      }
+      if (filters?.project_id && filters.project_id !== 'all') {
+        query = query.eq('project_id', filters.project_id);
+      }
+      
+      return query;
+    },
+  },
+
+  // Stats
+  stats: {
+    getCounts: async () => {
+      const results = await Promise.all([
+        supabase.from('tasks').select('*', { count: 'exact', head: true }),
+        supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('status', 'in_progress'),
+        supabase.from('notes').select('*', { count: 'exact', head: true }),
+      ]);
+      
+      return {
+        totalTasks: results[0].count || 0,
+        inProgress: results[1].count || 0,
+        totalNotes: results[2].count || 0,
+      };
+    },
+  },
+};

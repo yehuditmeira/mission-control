@@ -1,30 +1,53 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
-  const db = getDb();
-  const jobs = db.prepare(`
-    SELECT c.*, p.name as project_name, p.color as project_color
-    FROM cron_jobs c
-    LEFT JOIN projects p ON c.project_id = p.id
-    ORDER BY c.label
-  `).all();
-  return NextResponse.json(jobs);
+  const { data: jobs, error } = await supabase
+    .from('cron_jobs')
+    .select('*, projects(name, color)')
+    .order('label', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching cron jobs:', error);
+    return NextResponse.json({ error: 'Failed to fetch cron jobs' }, { status: 500 });
+  }
+
+  const flatJobs = (jobs || []).map(({ projects, ...rest }: any) => ({
+    ...rest,
+    project_name: projects?.name ?? null,
+    project_color: projects?.color ?? null,
+  }));
+
+  return NextResponse.json(flatJobs);
 }
 
 export async function POST(req: Request) {
-  const db = getDb();
   const body = await req.json();
   const { label, description, schedule, schedule_raw, command, project_id, source } = body;
 
   if (!label || !schedule) return NextResponse.json({ error: 'label and schedule required' }, { status: 400 });
 
-  const result = db.prepare(
-    'INSERT OR IGNORE INTO cron_jobs (label, description, schedule, schedule_raw, command, project_id, source) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(label, description || null, schedule, schedule_raw || null, command || null, project_id || null, source || 'manual');
+  const { data: job, error } = await supabase
+    .from('cron_jobs')
+    .insert({
+      label,
+      description: description || null,
+      schedule,
+      schedule_raw: schedule_raw || null,
+      command: command || null,
+      project_id: project_id || null,
+      source: source || 'manual',
+    })
+    .select()
+    .single();
 
-  if (result.changes === 0) return NextResponse.json({ error: 'label already exists' }, { status: 409 });
+  if (error) {
+    if (error.code === '23505') {
+      return NextResponse.json({ error: 'label already exists' }, { status: 409 });
+    }
+    console.error('Error creating cron job:', error);
+    return NextResponse.json({ error: 'Failed to create cron job' }, { status: 500 });
+  }
 
-  const job = db.prepare('SELECT * FROM cron_jobs WHERE id = ?').get(result.lastInsertRowid);
   return NextResponse.json(job, { status: 201 });
 }

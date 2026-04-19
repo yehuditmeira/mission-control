@@ -8,4 +8,5 @@ console.log('Supabase: Initializing client with URL:', supabaseUrl.slice(0, 30) 
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false },
+  db: { schema: 'public' }
 });

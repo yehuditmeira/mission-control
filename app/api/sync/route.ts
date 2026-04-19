@@ -29,10 +29,13 @@ export async function GET() {
     .select('*');
 
   if (error) {
-    return NextResponse.json(
-      { error: 'Failed to read sync data', detail: error.message },
-      { status: 500 }
-    );
+    // Never 500 the dashboard — render empty state with diagnostic instead.
+    // Common cases: table missing on DB, env mismatch, RLS misconfig.
+    return NextResponse.json({
+      synced_at: new Date().toISOString(),
+      projects: [],
+      warning: error.message,
+    });
   }
 
   // Parse phase_list from JSON string if needed

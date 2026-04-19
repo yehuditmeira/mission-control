@@ -79,12 +79,13 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-screen bg-[hsl(var(--background))] flex flex-col fixed left-0 top-0 border-r border-[hsl(var(--border))]">
+    <aside className="w-60 h-screen bg-[hsl(var(--background-2))] flex flex-col fixed left-0 top-0 border-r border-[hsl(var(--border))]">
       {/* Logo */}
-      <div className="px-4 py-4">
-        <h1 className="text-sm font-semibold text-[hsl(var(--foreground))] tracking-tight">
+      <div className="px-4 py-4 border-b border-[hsl(var(--border))]">
+        <h1 className="text-sm font-semibold text-[hsl(var(--primary))] tracking-tight font-[family-name:var(--font-heading)]">
           Mission Control
         </h1>
+        <p className="text-[10px] text-[hsl(var(--foreground-dim))] mt-0.5 tracking-wider uppercase">Command Center</p>
       </div>
 
       {/* Main Navigation */}

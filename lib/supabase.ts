@@ -6,7 +6,14 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUP
 
 console.log('Supabase: Initializing client with URL:', supabaseUrl.slice(0, 30) + '...');
 
+// Custom fetch that disables Next.js fetch caching — without this,
+// Vercel can serve stale Supabase responses for hours despite
+// `dynamic = 'force-dynamic'` on routes.
+const noCacheFetch: typeof fetch = (input, init) =>
+  fetch(input, { ...init, cache: 'no-store', next: { revalidate: 0 } } as RequestInit);
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: { persistSession: false },
-  db: { schema: 'public' }
+  db: { schema: 'public' },
+  global: { fetch: noCacheFetch },
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { PROJECTS } from '@/lib/projects';
+import { PROJECTS, daysUntil } from '@/lib/projects';
 import {
   CheckCircle2,
   Clock,
@@ -13,6 +13,7 @@ import {
   Calendar,
   Network,
   AlertTriangle,
+  Rocket,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -132,6 +133,45 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Imminent launch banner — surfaces highest-priority deadline */}
+      {(() => {
+        const upcoming = PROJECTS.filter((p) => p.launchDate)
+          .map((p) => ({ p, days: daysUntil(p.launchDate!) }))
+          .filter(({ days }) => days >= 0 && days <= 14)
+          .sort((a, b) => a.days - b.days)[0];
+        if (!upcoming) return null;
+        const { p, days } = upcoming;
+        return (
+          <Link href="/this-week">
+            <div
+              className="rounded-lg p-4 border flex items-center justify-between gap-4 hover:opacity-90 transition-opacity"
+              style={{ borderColor: p.color, background: `${p.color}10` }}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Rocket size={18} style={{ color: p.color }} className="flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-wider text-[hsl(var(--foreground-dim))]">
+                    Next launch
+                  </div>
+                  <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate">
+                    {p.name} — {p.launchLabel}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <div
+                  className="text-2xl font-semibold leading-none font-[family-name:var(--font-heading)]"
+                  style={{ color: p.color }}
+                >
+                  {days === 0 ? 'TODAY' : days === 1 ? 'TOMORROW' : `${days}d`}
+                </div>
+                <div className="text-[10px] text-[hsl(var(--foreground-dim))] mt-0.5">view tasks →</div>
+              </div>
+            </div>
+          </Link>
+        );
+      })()}
 
       {/* Warning banner — only when /api/sync has a soft failure */}
       {data?.warning && (

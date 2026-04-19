@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Project } from '@/lib/types';
-import { LayoutGrid, Pin, Target, User } from 'lucide-react';
+import { LayoutGrid, Pin, Target, User, CreditCard, Bot } from 'lucide-react';
 
 interface ProjectTabsProps {
   showAll?: boolean;
@@ -16,6 +16,8 @@ const PROJECT_ICONS: Record<string, React.ReactNode> = {
   'personal': <User className="w-3.5 h-3.5" />,
   'merchant-lead-hunter': <Target className="w-3.5 h-3.5" />,
   'mrkt-drop': <Pin className="w-3.5 h-3.5" />,
+  'paydirect': <CreditCard className="w-3.5 h-3.5" />,
+  'personal-assistant': <Bot className="w-3.5 h-3.5" />,
 };
 
 export function ProjectTabs(props: ProjectTabsProps) {

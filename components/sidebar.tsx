@@ -13,6 +13,7 @@ import {
   Calendar,
   Clock,
   Brain,
+  Rocket,
   PanelsLeftRight,
   ChevronDown,
   ChevronRight,
@@ -27,6 +28,7 @@ import { ProjectTabs } from './project-tabs';
 
 const navItems = [
   { href: '/', label: 'Mission Control', icon: LayoutDashboard },
+  { href: '/this-week', label: 'This Week', icon: Rocket },
   { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
   { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/notes', label: 'Notes', icon: StickyNote },

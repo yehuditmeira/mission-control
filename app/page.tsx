@@ -9,7 +9,10 @@ import {
   ArrowRight,
   Zap,
   Loader2,
-  LayoutGrid,
+  CheckSquare,
+  Calendar,
+  Network,
+  AlertTriangle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -33,6 +36,13 @@ type ProjectSync = {
 type SyncResponse = {
   synced_at: string;
   projects: ProjectSync[];
+  warning?: string;
+};
+
+type Counts = {
+  tasks: number;
+  events: number;
+  cron: number;
 };
 
 function statusLabel(sync: ProjectSync | undefined): string {
@@ -47,7 +57,7 @@ function statusLabel(sync: ProjectSync | undefined): string {
 function statusDot(label: string): string {
   switch (label) {
     case 'Active':
-      return 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]';
+      return 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] animate-pulse';
     case 'Complete':
       return 'bg-emerald-400';
     case 'Planned':
@@ -60,31 +70,51 @@ function statusDot(label: string): string {
 function timeAgo(iso: string | null): string {
   if (!iso) return '—';
   const diff = Date.now() - new Date(iso).getTime();
-  const hours = Math.floor(diff / 3600000);
-  if (hours < 1) return 'just now';
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
 
+// Find the next 2 phases after the current one. Phases are sorted numerically.
+function getUpcomingPhases(sync: ProjectSync | undefined): PhaseInfo[] {
+  if (!sync || !sync.current_phase || sync.phase_list.length === 0) return [];
+  const cur = sync.current_phase;
+  return sync.phase_list
+    .filter((p) => parseFloat(p.id) > cur)
+    .slice(0, 2);
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState<SyncResponse | null>(null);
+  const [counts, setCounts] = useState<Counts | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/sync')
-      .then((r) => {
-        if (!r.ok) throw new Error(`Sync failed: ${r.status}`);
-        return r.json();
+    Promise.all([
+      fetch('/api/sync').then((r) => r.json()),
+      fetch('/api/tasks').then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      fetch('/api/events').then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      fetch('/api/cron-jobs').then((r) => (r.ok ? r.json() : [])).catch(() => []),
+    ])
+      .then(([sync, tasks, events, cron]) => {
+        setData(sync);
+        setCounts({
+          tasks: Array.isArray(tasks) ? tasks.length : 0,
+          events: Array.isArray(events) ? events.length : 0,
+          cron: Array.isArray(cron) ? cron.length : 0,
+        });
       })
-      .then(setData)
       .catch((e) => setError(e.message));
   }, []);
 
   const syncMap = new Map(data?.projects.map((p) => [p.project_id, p]));
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-8 max-w-6xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -103,7 +133,18 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Error state */}
+      {/* Warning banner — only when /api/sync has a soft failure */}
+      {data?.warning && (
+        <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-xs text-amber-300">
+          <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
+          <div>
+            <div className="font-medium mb-0.5">Sync warning</div>
+            <div className="text-amber-300/80">{data.warning}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Hard error */}
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-sm text-red-400">
           Sync error: {error}
@@ -118,52 +159,61 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Project Cards — hierarchical layout with accent left borders */}
+      {/* At-a-glance tiles — real counts */}
+      {counts && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Tile href="/tasks" icon={<CheckSquare size={14} />} label="Tasks" value={counts.tasks} accent="hsl(var(--primary))" />
+          <Tile href="/calendar" icon={<Calendar size={14} />} label="Events" value={counts.events} accent="hsl(var(--accent))" />
+          <Tile href="/cron" icon={<Zap size={14} />} label="Cron Jobs" value={counts.cron} accent="#fbbf24" />
+          <Tile href="/org" icon={<Network size={14} />} label="Agents" value={12} accent="#c084fc" subtitle="across 4 projects" />
+        </div>
+      )}
+
+      {/* Project Cards — richer view with milestone + upcoming phases */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {PROJECTS.map((project) => {
           const sync = syncMap.get(project.id);
           const label = statusLabel(sync);
+          const upcoming = getUpcomingPhases(sync);
           return (
             <Link key={project.id} href={`/tasks?project=${project.id}`}>
-              <div
-                className="group relative bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-5 hover:border-[hsl(var(--border-bright))] transition-all cursor-pointer overflow-hidden"
-              >
+              <div className="group relative bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-5 hover:border-[hsl(var(--border-bright))] transition-all cursor-pointer overflow-hidden">
                 {/* Accent left border */}
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg"
-                  style={{ backgroundColor: project.color }}
-                />
+                <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg" style={{ backgroundColor: project.color }} />
 
                 {/* Top row: status dot + name + arrow */}
                 <div className="flex items-start justify-between mb-3 pl-2">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot(label)}`} />
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="font-semibold text-[hsl(var(--foreground))] text-sm font-[family-name:var(--font-heading)]">
                         {project.name}
                       </h2>
-                      <p className="text-[11px] text-[hsl(var(--foreground-dim))]">
-                        {project.description}
-                      </p>
+                      <p className="text-[11px] text-[hsl(var(--foreground-dim))] truncate">{project.description}</p>
                     </div>
                   </div>
-                  <ArrowRight
-                    size={14}
-                    className="text-[hsl(var(--foreground-dim))] opacity-0 group-hover:opacity-100 transition-opacity mt-1"
-                  />
+                  <ArrowRight size={14} className="text-[hsl(var(--foreground-dim))] opacity-0 group-hover:opacity-100 transition-opacity mt-1" />
                 </div>
 
                 {/* Milestone + Phase info */}
                 {sync?.milestone_name && (
                   <div className="mb-3 pl-2">
                     <p className="text-xs text-[hsl(var(--foreground))] font-medium">
-                      {sync.milestone} — {sync.milestone_name}
+                      {sync.milestone && <span className="text-[hsl(var(--foreground-dim))]">{sync.milestone} — </span>}
+                      {sync.milestone_name}
                     </p>
                     {sync.current_phase_name && (
-                      <p className="text-[11px] text-[hsl(var(--foreground-dim))] mt-0.5">
+                      <p className="text-[11px] text-[hsl(var(--foreground-dim))] mt-0.5 truncate">
                         Phase {sync.current_phase}: {sync.current_phase_name}
                       </p>
                     )}
+                  </div>
+                )}
+
+                {/* No-planning empty state */}
+                {sync && !sync.has_planning && (
+                  <div className="mb-3 pl-2 text-[11px] text-[hsl(var(--foreground-dim))] italic">
+                    No planning data yet
                   </div>
                 )}
 
@@ -179,12 +229,24 @@ export default function DashboardPage() {
                     <div className="w-full h-1 bg-[hsl(var(--border))] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
-                        style={{
-                          width: `${sync.percent}%`,
-                          backgroundColor: project.color,
-                        }}
+                        style={{ width: `${sync.percent}%`, backgroundColor: project.color }}
                       />
                     </div>
+                  </div>
+                )}
+
+                {/* Upcoming phases preview */}
+                {upcoming.length > 0 && (
+                  <div className="mb-3 pl-2">
+                    <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--foreground-dim))] mb-1.5">Coming up</p>
+                    <ul className="space-y-1">
+                      {upcoming.map((p) => (
+                        <li key={p.id} className="text-[11px] text-[hsl(var(--foreground-dim))] truncate">
+                          <span className="text-[hsl(var(--foreground))] mr-2">Phase {p.id}</span>
+                          {p.name}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
 
@@ -202,7 +264,7 @@ export default function DashboardPage() {
                   )}
                   <div className="flex items-center gap-1.5 text-[hsl(var(--foreground-dim))]">
                     <Clock size={11} />
-                    <span>{timeAgo(sync?.last_updated ?? null)}</span>
+                    <span title={sync?.last_updated ?? ''}>{timeAgo(sync?.last_updated ?? null)}</span>
                   </div>
                 </div>
               </div>
@@ -210,50 +272,37 @@ export default function DashboardPage() {
           );
         })}
       </div>
-
-      {/* Quick Actions — minimal cards */}
-      <div>
-        <h2 className="text-[10px] font-semibold text-[hsl(var(--foreground-dim))] uppercase tracking-wider mb-3">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Link href="/cron">
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4 hover:border-[hsl(var(--border-bright))] transition-all">
-              <div className="flex items-center gap-3">
-                <Zap size={14} className="text-[hsl(var(--primary))]" />
-                <div>
-                  <span className="text-sm font-medium text-[hsl(var(--foreground))]">Cron Jobs</span>
-                  <p className="text-[11px] text-[hsl(var(--foreground-dim))]">Scheduled tasks</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/tasks">
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4 hover:border-[hsl(var(--border-bright))] transition-all">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 size={14} className="text-[hsl(var(--accent))]" />
-                <div>
-                  <span className="text-sm font-medium text-[hsl(var(--foreground))]">All Tasks</span>
-                  <p className="text-[11px] text-[hsl(var(--foreground-dim))]">Cross-project view</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/platforms">
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4 hover:border-[hsl(var(--border-bright))] transition-all">
-              <div className="flex items-center gap-3">
-                <LayoutGrid size={14} className="text-[hsl(var(--accent))]" />
-                <div>
-                  <span className="text-sm font-medium text-[hsl(var(--foreground))]">Platforms</span>
-                  <p className="text-[11px] text-[hsl(var(--foreground-dim))]">Social channels</p>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
     </div>
+  );
+}
+
+function Tile({
+  href,
+  icon,
+  label,
+  value,
+  accent,
+  subtitle,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  accent: string;
+  subtitle?: string;
+}) {
+  return (
+    <Link href={href}>
+      <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg p-4 hover:border-[hsl(var(--border-bright))] transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <span style={{ color: accent }}>{icon}</span>
+          <span className="text-2xl font-semibold text-[hsl(var(--foreground))] font-[family-name:var(--font-heading)]">
+            {value}
+          </span>
+        </div>
+        <p className="text-xs text-[hsl(var(--foreground))] font-medium">{label}</p>
+        {subtitle && <p className="text-[10px] text-[hsl(var(--foreground-dim))] mt-0.5">{subtitle}</p>}
+      </div>
+    </Link>
   );
 }

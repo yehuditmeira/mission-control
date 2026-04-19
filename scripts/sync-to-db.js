@@ -99,16 +99,36 @@ function extractCurrentPhaseName(content) {
   return null;
 }
 
-function listPhases(projectDir) {
-  const phasesDir = path.join(projectDir, '.planning', 'phases');
+// Prefer body text "Active phase: Phase N — name" over frontmatter,
+// since frontmatter can drift if the doc was updated by hand.
+function extractActivePhaseNumber(content) {
+  const m = content.match(/\*{0,2}Active phase:\*{0,2}\s*Phase\s*(\d+(?:\.\d+)?)/i);
+  if (m) return parseFloat(m[1]);
+  return null;
+}
+
+// Some projects (paydirect) use "planning/" without the leading dot.
+// Returns the actual planning dir name found, or null.
+function findPlanningDir(projectDir) {
+  for (const candidate of ['.planning', 'planning']) {
+    const p = path.join(projectDir, candidate);
+    if (fs.existsSync(p)) return candidate;
+  }
+  return null;
+}
+
+function listPhases(projectDir, planningDirName) {
+  const phasesDir = path.join(projectDir, planningDirName, 'phases');
   try {
     const entries = fs.readdirSync(phasesDir, { withFileTypes: true });
     return entries
-      .filter((e) => e.isDirectory() && /^\d/.test(e.name))
+      .filter((e) => e.isDirectory() && /^(\d|phase[-_]?\d)/i.test(e.name))
       .map((e) => {
-        const parts = e.name.split('-');
-        const id = parts[0];
-        const name = parts.slice(1).join(' ').replace(/-/g, ' ');
+        // Match either "01-name" or "phase-1-name" or "phase1-name"
+        const m = e.name.match(/^(?:phase[-_]?)?(\d+(?:\.\d+)?)[-_](.*)$/i);
+        if (!m) return { id: e.name, name: e.name };
+        const id = m[1];
+        const name = m[2].replace(/[-_]/g, ' ');
         return { id, name };
       })
       .sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
@@ -136,12 +156,12 @@ function syncProject(projectId) {
     has_planning: false,
   };
 
-  // Check if .planning exists
-  const planningDir = path.join(projectDir, '.planning');
-  if (!fs.existsSync(planningDir)) {
-    if (!fs.existsSync(projectDir)) return data;
+  // Check if a planning dir exists (.planning or planning/ — paydirect uses no dot)
+  const planningDirName = findPlanningDir(projectDir);
+  if (!planningDirName) {
     return data;
   }
+  const planningDir = path.join(projectDir, planningDirName);
   data.has_planning = true;
 
   // Read STATE.md
@@ -155,7 +175,7 @@ function syncProject(projectId) {
     data.milestone_name = fm.milestone_name || null;
     data.status = fm.status || null;
     data.last_updated = fm.last_updated || null;
-    data.current_phase = fm.current_phase || null;
+    data.current_phase = extractActivePhaseNumber(stateContent) ?? fm.current_phase ?? null;
     data.current_phase_name = extractCurrentPhaseName(stateContent);
 
     data.total_phases = progress.total_phases || 0;
@@ -212,7 +232,7 @@ function syncProject(projectId) {
   }
 
   // List phases
-  data.phase_list = listPhases(projectDir);
+  data.phase_list = listPhases(projectDir, planningDirName);
 
   if (data.total_phases === 0 && data.phase_list.length > 0) {
     data.total_phases = data.phase_list.length;

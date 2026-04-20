@@ -102,11 +102,36 @@ function classifyLaunchdLabel(label, plist) {
 // ---------- Health classification ----------
 function healthFromExit(exit, label) {
   if (exit === null || exit === undefined) return 'unknown';
+  // exit=0 immediately after `launchctl load` is a placeholder, not "ran successfully".
+  // We can't tell the difference here — caller should look at log file mtime to confirm.
   if (exit === 0) return 'green';
   // -N = killed by signal N. -15 (SIGTERM) usually means clean restart, treat as yellow.
   if (exit === -15) return 'yellow';
   // 126 = not executable, 127 = command not found, -9 = SIGKILL — all red.
   return 'red';
+}
+
+// Detect if a launchd job is failing because of macOS TCC (Full Disk Access)
+// by inspecting its err log for the canonical "Operation not permitted" string.
+function detectTCCFailure(label) {
+  const stem = label.replace(/^com\.henry\.cron\./, '').replace(/^com\./, '').replace(/-/g, '_');
+  const possibleErrPaths = [
+    path.join(HOME, 'scripts', 'henry-cron', 'logs', `${stem}_launchd.err`),
+    path.join(AI_FOLDER, 'henry-cron', 'logs', `${stem}_launchd.err`),
+    path.join(AI_FOLDER, 'Affiliate_Flow', 'logs', 'cron-err.log'),
+  ];
+  for (const p of possibleErrPaths) {
+    try {
+      const stat = fs.statSync(p);
+      // Only consider err logs touched in last 7 days
+      if (Date.now() - stat.mtimeMs > 7 * 86400 * 1000) continue;
+      const tail = fs.readFileSync(p, 'utf-8').slice(-2000);
+      if (tail.includes('Operation not permitted') || tail.includes('cannot access parent directories')) {
+        return 'TCC sandbox blocking — bash needs Full Disk Access in System Settings';
+      }
+    } catch {}
+  }
+  return null;
 }
 
 function statusFromExit(exit, pid) {
@@ -246,6 +271,17 @@ async function main() {
     const plist = readPlist(j.label);
     const slug = classifyLaunchdLabel(j.label, plist);
     const codePath = (plist?.argv || []).find((a) => a.startsWith('/Users/')) || null;
+    const tcc = detectTCCFailure(j.label);
+    let health = healthFromExit(j.lastExit, j.label);
+    let lastError = (j.lastExit && j.lastExit !== 0 && j.lastExit !== -15) ? `exit ${j.lastExit}` : null;
+    let notes = `pid=${j.pid ?? '—'} last_exit=${j.lastExit ?? '—'}`;
+    if (tcc) {
+      // Even if launchctl says exit=0, TCC denial in recent err log means the job
+      // can't actually function. Override to red + tag the actionable fix.
+      health = 'red';
+      lastError = tcc;
+      notes += ' · TCC: bash sandboxed by macOS Full Disk Access';
+    }
     const op = {
       title: j.label,
       project_id: projectIdFor(slug),
@@ -257,12 +293,12 @@ async function main() {
       status: statusFromExit(j.lastExit, j.pid),
       output_target: 'launchd',
       code_path: codePath,
-      health_state: healthFromExit(j.lastExit, j.label),
-      notes: `pid=${j.pid ?? '—'} last_exit=${j.lastExit ?? '—'}`,
+      health_state: health,
+      notes,
       created_from: 'launchd',
       source_path: path.join(HOME, 'Library', 'LaunchAgents', `${j.label}.plist`),
       external_key: `launchd:${j.label}`,
-      last_error: (j.lastExit && j.lastExit !== 0 && j.lastExit !== -15) ? `exit ${j.lastExit}` : null,
+      last_error: lastError,
     };
     ops.push(op);
   }

@@ -114,12 +114,18 @@ function healthFromExit(exit, label) {
 // Detect if a launchd job is failing because of macOS TCC (Full Disk Access)
 // by inspecting its err log for the canonical "Operation not permitted" string.
 function detectTCCFailure(label) {
+  // Only check err files specific to this label — never a shared file or a
+  // file from a different job, otherwise one project's TCC pain poisons every
+  // job's health reading.
   const stem = label.replace(/^com\.henry\.cron\./, '').replace(/^com\./, '').replace(/-/g, '_');
   const possibleErrPaths = [
     path.join(HOME, 'scripts', 'henry-cron', 'logs', `${stem}_launchd.err`),
     path.join(AI_FOLDER, 'henry-cron', 'logs', `${stem}_launchd.err`),
-    path.join(AI_FOLDER, 'Affiliate_Flow', 'logs', 'cron-err.log'),
   ];
+  // Mrkt Drop's deadlinks job has its own dedicated err file
+  if (label === 'com.themrktdrop.deadlinks') {
+    possibleErrPaths.push(path.join(AI_FOLDER, 'Affiliate_Flow', 'logs', 'cron-err.log'));
+  }
   for (const p of possibleErrPaths) {
     try {
       const stat = fs.statSync(p);

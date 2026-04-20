@@ -40,13 +40,15 @@ function CalendarContent() {
     const params = new URLSearchParams({ start, end });
     if (projectFilter !== 'all') params.set('project_id', projectFilter);
 
-    // Fetch tasks and events in parallel
-    const [tasksRes, eventsRes] = await Promise.all([
+    // Fetch tasks, events, AND calendar overlay (milestones + recurring workflows) in parallel
+    const [tasksRes, eventsRes, overlayRes] = await Promise.all([
       fetch(`/api/tasks?${projectFilter !== 'all' ? `project_id=${projectFilter}` : ''}`),
       fetch(`/api/events?${params}`),
+      fetch(`/api/calendar-overlay?start=${start}&end=${end}`),
     ]);
     const tasks = await tasksRes.json();
     const events = await eventsRes.json();
+    const overlay = await overlayRes.json();
 
     const calItems: CalendarItem[] = [];
 
@@ -71,6 +73,19 @@ function CalendarContent() {
         type: 'event',
         color: e.color || e.project_color || '#A855F7',
         date: e.start_datetime.split('T')[0],
+      });
+    }
+
+    // Overlay: milestones + recurring workflows from operations table.
+    // We render workflows as a 'cron'-typed item and milestones as 'event' so the
+    // existing CalendarItem type stays compatible.
+    for (const o of overlay.items ?? []) {
+      calItems.push({
+        id: o.id,
+        title: o.type === 'milestone' ? `🎯 ${o.title}` : o.title,
+        type: o.type === 'milestone' ? 'event' : 'cron',
+        color: o.color || '#7cc5ff',
+        date: o.date,
       });
     }
 

@@ -32,6 +32,7 @@ export const PROJECTS: ProjectDef[] = [
       'Affiliate_Flow/Platforms/social-growth-plan.md',
     ],
     thisWeek: [
+      { title: 'Give Claude the WhatsApp API credentials (blocker for WhatsApp publishing automation)', due: '2026-04-21' },
       { title: 'Pinterest setup: 5 boards live (Shabbos Outfit Ideas, Tznius Workwear, Modest Wedding Guest, Simcha Style, Family Matching)', due: '2026-04-21' },
       { title: 'Pin design templates in Canva — first 10 pins ready', due: '2026-04-21' },
       { title: 'Tailwind / scheduler set up for daily 10-pin target', due: '2026-04-22' },

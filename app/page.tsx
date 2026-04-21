@@ -115,9 +115,9 @@ export default function DashboardPage() {
   const syncMap = new Map(data?.projects.map((p) => [p.project_id, p]));
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-6 md:space-y-8 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--foreground))] font-[family-name:var(--font-heading)]">
             Mission Control
@@ -145,7 +145,7 @@ export default function DashboardPage() {
         return (
           <Link href="/this-week">
             <div
-              className="rounded-lg p-4 border flex items-center justify-between gap-4 hover:opacity-90 transition-opacity"
+              className="rounded-lg p-4 border flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between hover:opacity-90 transition-opacity"
               style={{ borderColor: p.color, background: `${p.color}10` }}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -201,7 +201,7 @@ export default function DashboardPage() {
 
       {/* At-a-glance tiles — real counts */}
       {counts && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <Tile href="/tasks" icon={<CheckSquare size={14} />} label="Tasks" value={counts.tasks} accent="hsl(var(--primary))" />
           <Tile href="/calendar" icon={<Calendar size={14} />} label="Events" value={counts.events} accent="hsl(var(--accent))" />
           <Tile href="/cron" icon={<Zap size={14} />} label="Cron Jobs" value={counts.cron} accent="#fbbf24" />

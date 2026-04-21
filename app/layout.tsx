@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={`${fraunces.variable} ${jetbrainsMono.variable} antialiased`}>
         <ThemeProvider>
           <Sidebar />
-          <main className="ml-60 min-h-screen p-6">
+          <main className="md:ml-60 min-h-screen p-4 pt-16 md:p-6 md:pt-6">
             <div className="fixed top-4 right-4 z-50">
               <ThemeToggle />
             </div>

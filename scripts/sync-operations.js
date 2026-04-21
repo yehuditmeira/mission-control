@@ -366,7 +366,40 @@ async function main() {
     }
   }
 
+  // ---------- Ghost cleanup ----------
+  // Resolve BLOCKER rows whose underlying job no longer exists (plist deleted,
+  // apscheduler id removed, etc). Prevents Mission Control from showing a job
+  // that was deleted off disk as if it's still failing.
+  const liveBlockerKeys = new Set(ops.map((o) => `BLOCKER:${o.external_key}`));
+  const { data: openBlockers, error: blErr } = await sb
+    .from('operations')
+    .select('id, external_key, source_path, title')
+    .eq('subtype', 'job-failure')
+    .eq('status', 'open');
+  let ghostsResolved = 0;
+  if (!blErr && openBlockers) {
+    for (const b of openBlockers) {
+      const stillTracked = liveBlockerKeys.has(b.external_key);
+      const plistGone = b.source_path && !fs.existsSync(b.source_path);
+      if (!stillTracked && plistGone) {
+        const { error } = await sb
+          .from('operations')
+          .update({
+            status: 'resolved',
+            blocker_state: 'resolved',
+            notes: `Auto-resolved ${new Date().toISOString().slice(0,10)}: source ${b.source_path} no longer exists. Job was deleted.`,
+          })
+          .eq('id', b.id);
+        if (!error) {
+          ghostsResolved++;
+          console.log(`  🧹 Auto-resolved ghost: ${b.title} (id=${b.id})`);
+        }
+      }
+    }
+  }
+
   console.log(`\nSynced ${ops.length} operations: ${upserts.inserted} inserted, ${upserts.updated} updated.`);
+  if (ghostsResolved > 0) console.log(`Ghost blockers auto-resolved: ${ghostsResolved}`);
   // Summary by health
   const byHealth = ops.reduce((acc, o) => { acc[o.health_state] = (acc[o.health_state] || 0) + 1; return acc; }, {});
   console.log('Health:', byHealth);

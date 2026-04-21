@@ -40,7 +40,7 @@ export default function MemoryPage() {
           <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)}>
             <ArrowLeft className="w-4 h-4 mr-1" /> Back
           </Button>
-          <h1 className="text-2xl font-bold text-neutral-900">{selectedFile}</h1>
+          <h1 className="text-xl font-bold text-neutral-900 truncate min-w-0">{selectedFile}</h1>
         </div>
         {loading ? (
           <div className="text-muted-foreground">Loading...</div>
@@ -110,10 +110,10 @@ export default function MemoryPage() {
                   <div
                     key={entry.filename}
                     onClick={() => viewFile(entry.filename)}
-                    className="bg-white rounded-lg border border-neutral-200 p-4 cursor-pointer hover:shadow-md transition-shadow flex items-center gap-4"
+                    className="bg-white rounded-lg border border-neutral-200 p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"
                   >
-                    <div className="text-sm font-mono font-medium text-neutral-500 min-w-[100px]">{entry.date}</div>
-                    <p className="text-sm text-muted-foreground truncate flex-1">{entry.preview}</p>
+                    <div className="text-sm font-mono font-medium text-neutral-500 sm:min-w-[100px] sm:flex-shrink-0">{entry.date}</div>
+                    <p className="text-sm text-muted-foreground sm:truncate sm:flex-1">{entry.preview}</p>
                     <span className="text-xs text-muted-foreground">{Math.round(entry.size / 1024)}KB</span>
                   </div>
                 ))}

@@ -25,6 +25,8 @@ import {
   Network,
   Building2,
   FileText,
+  Menu,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PROJECTS } from '@/lib/projects';
@@ -76,6 +78,7 @@ const statusIndicator = {
 export function Sidebar() {
   const pathname = usePathname();
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set(['affiliate-flow']));
+  const [isOpen, setIsOpen] = useState(false);
 
   const isProjectView = projectSpecificPages.some(page => pathname.startsWith(page));
 
@@ -89,7 +92,29 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-screen bg-[hsl(var(--background-2))] flex flex-col fixed left-0 top-0 border-r border-[hsl(var(--border))]">
+    <>
+    {/* Mobile hamburger button */}
+    <button
+      className="fixed top-4 left-4 z-50 md:hidden p-1.5 rounded-md bg-[hsl(var(--background-2))] border border-[hsl(var(--border))] text-[hsl(var(--foreground-dim))]"
+      onClick={() => setIsOpen(!isOpen)}
+      aria-label="Toggle navigation"
+    >
+      {isOpen ? <X size={18} /> : <Menu size={18} />}
+    </button>
+
+    {/* Mobile overlay */}
+    {isOpen && (
+      <div
+        className="fixed inset-0 bg-black/50 z-30 md:hidden"
+        onClick={() => setIsOpen(false)}
+      />
+    )}
+
+    <aside className={cn(
+      "w-60 h-screen bg-[hsl(var(--background-2))] flex flex-col fixed left-0 top-0 z-40 border-r border-[hsl(var(--border))] transition-transform duration-200",
+      "md:translate-x-0",
+      isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+    )}>
       {/* Logo */}
       <div className="px-4 py-4 border-b border-[hsl(var(--border))]">
         <h1 className="text-sm font-semibold text-[hsl(var(--primary))] tracking-tight font-[family-name:var(--font-heading)]">
@@ -99,7 +124,7 @@ export function Sidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="px-2 space-y-0.5">
+      <nav className="px-2 space-y-0.5" onClick={() => setIsOpen(false)}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -205,7 +230,7 @@ export function Sidebar() {
                 Views
               </h2>
             </div>
-            <div className="space-y-0.5 mb-4">
+            <div className="space-y-0.5 mb-4" onClick={() => setIsOpen(false)}>
               <Link
                 href="/kanban"
                 className={cn(
@@ -235,5 +260,6 @@ export function Sidebar() {
         )}
       </div>
     </aside>
+    </>
   );
 }

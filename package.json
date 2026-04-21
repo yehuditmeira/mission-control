@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync": "node scripts/sync-to-db.js"
+    "sync": "node scripts/sync-to-db.js",
+    "sync:memory": "node scripts/sync-memory-logs.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

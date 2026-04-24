@@ -232,7 +232,7 @@ export function Sidebar() {
             </div>
             <div className="space-y-0.5 mb-4" onClick={() => setIsOpen(false)}>
               <Link
-                href="/kanban"
+                href="/admin/kanban"
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/kanban'
@@ -244,7 +244,7 @@ export function Sidebar() {
                 Kanban
               </Link>
               <Link
-                href="/gantt"
+                href="/admin/timeline"
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/gantt'

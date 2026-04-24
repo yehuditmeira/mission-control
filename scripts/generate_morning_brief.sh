@@ -5,6 +5,9 @@ DATE=$(date +%F)
 TARGET="$HOME/Documents/Obsidian Vault/Agent-OpenClaw/daily/${DATE}.md"
 mkdir -p "$(dirname "$TARGET")"
 
+# refresh project state before generating brief
+/Users/katespencer/Desktop/AI_Folder/mission-control/scripts/refresh_project_state.sh >/dev/null 2>&1 || true
+
 # If the file doesn't exist, create a header
 if [ ! -f "$TARGET" ]; then
   echo "# Morning Brief — $DATE" > "$TARGET"

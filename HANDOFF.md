@@ -14,3 +14,5 @@
 1. `git -C /Users/katespencer/Desktop/AI_Folder/mission-control status` to see current state
 2. If branch is not `kate/wip-claude`, check why before committing
 3. Read `/Users/katespencer/Documents/Obsidian Vault/Agent-Shared/decisions-log.md` (last 20 lines) for recent cross-agent decisions
+
+- [] [openclaw] Added agent-sync task to OPEN_ITEMS.md; agents notified; source: telegram

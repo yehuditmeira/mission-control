@@ -1,0 +1,3 @@
+Supabase CLI login → npx supabase login (30 seconds)
+WhatsApp Business permanent access token (Meta Business Suite → System Users)
+Register Twilio number on WhatsApp (install WA on spare phone, use 732-838-6989)

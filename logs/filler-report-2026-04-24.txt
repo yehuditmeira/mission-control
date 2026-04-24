@@ -1,0 +1,18 @@
+Filler tasks scan: 2026-04-24
+Dated: 2026-04-11 Wire WhatsApp Business API (+1 718-844-0238, Phone ID: 978711488667327) to post products
+Dated: 2026-04-11 Test WhatsApp post to test group
+Dated: 2026-04-11 Register Twilio 732-838-6989 on WhatsApp for competitor monitoring
+Dated: 2026-04-11 Join competitor WhatsApp groups (PZ Deals, Dans Deals, tznius fashion groups)
+Dated: 2026-04-11 Fix Sara products — backdate, add prices, convert affiliate links
+Dated: 2026-04-11 Run supabase db push (needs Yomy to login to Supabase CLI)
+Dated: 2026-04-11 Generate Gemini images for promoted Sara products
+Dated: 2026-04-11 Get WhatsApp Business API access token from Meta
+Dated: 2026-04-20 Add pre-compaction handoff checkpoint before compacting — source: conversation
+Dated: 2026-04-20 Mirror daily logs into Mission Control memory daily — source: conversation
+Dated: 2026-04-22 10:00 Send WhatsApp post #1 (executive post) — schedule: 10:00 ET
+Dated: 2026-04-22 16:00 Send WhatsApp post #2 (follow-up/promo) — schedule: 16:00 ET
+Dated: 2026-04-22 Implement WhatsApp API auto-send (phase 1): integrate Twilio/WhatsApp Business API, create staging sends, pin queue integration
+FILLER: Supabase CLI login → npx supabase login (30 seconds)
+FILLER: WhatsApp Business permanent access token (Meta Business Suite → System Users)
+FILLER: Register Twilio number on WhatsApp (install WA on spare phone, use 732-838-6989)
+Filler candidates: 3

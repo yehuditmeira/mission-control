@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-20T07:00:38.062Z",
+  "updatedAt": "2026-04-24T07:02:50.306Z",
   "entries": {
     "memory:memory/2026-04-17.md:9:9": {
       "key": "memory:memory/2026-04-17.md:9:9",
@@ -58,6 +58,809 @@
         "strong",
         "candidate",
         "surfaced"
+      ]
+    },
+    "memory:memory/2026-04-20.md:4:7": {
+      "key": "memory:memory/2026-04-20.md:4:7",
+      "path": "memory/2026-04-20.md",
+      "startLine": 4,
+      "endLine": 7,
+      "source": "memory",
+      "snippet": "Session 1: Switched orchestration to gpt-5.4-mini; Checked current context usage, 22k / 200k (11%); Captured a pre-compaction handoff rule so compactions do not lose state; Mirrored all Obsidian daily logs into Mission Control memory",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "511fd8111b88"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "gpt",
+        "gpt-5.4-mini",
+        "pre-compaction",
+        "switched",
+        "orchestration",
+        "5.4",
+        "mini",
+        "checked"
+      ]
+    },
+    "memory:memory/2026-04-20.md:8:9": {
+      "key": "memory:memory/2026-04-20.md:8:9",
+      "path": "memory/2026-04-20.md",
+      "startLine": 8,
+      "endLine": 9,
+      "source": "memory",
+      "snippet": "Session 1: Added a sync script so Mission Control stays mirrored; Blockers: none",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "511fd8111b88"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "added",
+        "sync",
+        "script",
+        "mission",
+        "control",
+        "stays",
+        "mirrored",
+        "blockers"
+      ]
+    },
+    "memory:memory/2026-04-19.md:5:5": {
+      "key": "memory:memory/2026-04-19.md:5:5",
+      "path": "memory/2026-04-19.md",
+      "startLine": 5,
+      "endLine": 5,
+      "source": "memory",
+      "snippet": "**Merchant Lead Hunter status check:**",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "21faa0df9302"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "hourly",
+        "cron",
+        "run",
+        "merchant",
+        "lead",
+        "hunter",
+        "status",
+        "check"
+      ],
+      "promotedAt": "2026-04-24T07:02:50.306Z"
+    },
+    "memory:memory/2026-04-19.md:6:9": {
+      "key": "memory:memory/2026-04-19.md:6:9",
+      "path": "memory/2026-04-19.md",
+      "startLine": 6,
+      "endLine": 9,
+      "source": "memory",
+      "snippet": "Hourly Cron Run — 17:51: Scheduler daemon: Running (PID 433, uptime 3h+); Last scrape cycle: Completed 17:46; Digest: Sent 14:46 to 2 recipients (1 success, 1 failure); Bucket routing: 2,540 merchants (7 active complaint, 248 vertical software pain, 84 high-risk nutra)",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "21faa0df9302"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "high-risk",
+        "hourly",
+        "cron",
+        "run",
+        "scheduler",
+        "daemon",
+        "running",
+        "pid"
+      ]
+    },
+    "memory:memory/2026-04-19.md:10:11": {
+      "key": "memory:memory/2026-04-19.md:10:11",
+      "path": "memory/2026-04-19.md",
+      "startLine": 10,
+      "endLine": 11,
+      "source": "memory",
+      "snippet": "Hourly Cron Run — 17:51: Issues: Drafting seeing JSON validation errors from Ollama model (qwen3:8b returning non-JSON responses); Action needed: Investigate Ollama output formatting",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "21faa0df9302"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "non-json",
+        "hourly",
+        "cron",
+        "run",
+        "issues",
+        "drafting",
+        "seeing",
+        "validation"
+      ]
+    },
+    "memory:memory/2026-04-19.md:14:15": {
+      "key": "memory:memory/2026-04-19.md:14:15",
+      "path": "memory/2026-04-19.md",
+      "startLine": 14,
+      "endLine": 15,
+      "source": "memory",
+      "snippet": "Session 1: Cron monitoring setup complete; No manual intervention needed for Merchant Lead Hunter — daemon healthy",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "21faa0df9302"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "cron",
+        "monitoring",
+        "setup",
+        "complete",
+        "manual",
+        "intervention",
+        "needed",
+        "merchant"
+      ]
+    },
+    "memory:memory/2026-04-18.md:6:9": {
+      "key": "memory:memory/2026-04-18.md:6:9",
+      "path": "memory/2026-04-18.md",
+      "startLine": 6,
+      "endLine": 9,
+      "source": "memory",
+      "snippet": "Merchant Lead Hunter - Hourly Cron Check (7:12 PM): **Status:** Scheduler daemon running normally (PID 81412); **Last scrape:** 2026-04-18 22:26:36 UTC (99 new posts, 568 total found, 2 errors); **Posts today:** 161; **Total posts:** 16,312",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "77ca9720ec15"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "merchant",
+        "lead",
+        "hunter",
+        "hourly",
+        "cron",
+        "check",
+        "status",
+        "scheduler"
+      ]
+    },
+    "memory:memory/2026-04-18.md:10:13": {
+      "key": "memory:memory/2026-04-18.md:10:13",
+      "path": "memory/2026-04-18.md",
+      "startLine": 10,
+      "endLine": 13,
+      "source": "memory",
+      "snippet": "Merchant Lead Hunter - Hourly Cron Check (7:12 PM): **Pipeline:** 39 messaged, 16,192 qualified, 16 in review; **Outreach:** Enabled, 0/15 DMs sent today (window: 9:00-21:00); **Next digest:** Every 4 hours; **Health checks:** Every 30 minutes",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "77ca9720ec15"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "0/15",
+        "00-21",
+        "merchant",
+        "lead",
+        "hunter",
+        "hourly",
+        "cron",
+        "check"
+      ]
+    },
+    "memory:memory/2026-04-18.md:16:19": {
+      "key": "memory:memory/2026-04-18.md:16:19",
+      "path": "memory/2026-04-18.md",
+      "startLine": 16,
+      "endLine": 19,
+      "source": "memory",
+      "snippet": "System Health: All scrapers operational; Telegram notifications configured; Reddit session active; No action required",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "77ca9720ec15"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "system",
+        "health",
+        "all",
+        "scrapers",
+        "operational",
+        "telegram",
+        "notifications",
+        "configured"
+      ]
+    },
+    "memory:memory/2026-04-17.md:5:5": {
+      "key": "memory:memory/2026-04-17.md:5:5",
+      "path": "memory/2026-04-17.md",
+      "startLine": 5,
+      "endLine": 5,
+      "source": "memory",
+      "snippet": "Executed `/tmp/deal-scanner-cron.sh`",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "tmp/deal-scanner-cron.sh",
+        "deal",
+        "scanner",
+        "run",
+        "executed",
+        "tmp",
+        "cron.sh"
+      ],
+      "promotedAt": "2026-04-24T07:02:50.306Z"
+    },
+    "memory:memory/2026-04-17.md:8:11": {
+      "key": "memory:memory/2026-04-17.md:8:11",
+      "path": "memory/2026-04-17.md",
+      "startLine": 8,
+      "endLine": 11,
+      "source": "memory",
+      "snippet": "Results: **Raw deals collected:** 63; **Tznius filter:** 16 passed, 47 filtered out; **Relevance filter:** 1 passed, 14 filtered out; **Deduplication:** 1 final deal",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "results",
+        "raw",
+        "deals",
+        "collected",
+        "tznius",
+        "filter",
+        "passed",
+        "filtered"
+      ]
+    },
+    "memory:memory/2026-04-17.md:14:14": {
+      "key": "memory:memory/2026-04-17.md:14:14",
+      "path": "memory/2026-04-17.md",
+      "startLine": 14,
+      "endLine": 14,
+      "source": "memory",
+      "snippet": "Top Deal: **LOMON Womens 3/4 Sleeve Tops Cotton Linen Shirts V Neck Lace Casual Loose Fit Bl**",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "3/4",
+        "top",
+        "deal",
+        "lomon",
+        "womens",
+        "sleeve",
+        "tops",
+        "cotton"
+      ]
+    },
+    "memory:memory/2026-04-17.md:15:18": {
+      "key": "memory:memory/2026-04-17.md:15:18",
+      "path": "memory/2026-04-17.md",
+      "startLine": 15,
+      "endLine": 18,
+      "source": "memory",
+      "snippet": "Top Deal: Price: $23.74; Source: Amazon Movers & Shakers; Score: 0.60; Tznius compliance: ✅ 3/4 sleeves, V-neck (acceptable with cami)",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "23.74",
+        "0.60",
+        "3/4",
+        "v-neck",
+        "top",
+        "deal",
+        "price",
+        "source"
+      ]
+    },
+    "memory:memory/2026-04-17.md:21:24": {
+      "key": "memory:memory/2026-04-17.md:21:24",
+      "path": "memory/2026-04-17.md",
+      "startLine": 21,
+      "endLine": 24,
+      "source": "memory",
+      "snippet": "Issues: Amazon searches blocked (HTTP 503) — anti-scraping protection; Sovrn API not configured — skipping product feed; H&M blocked (HTTP 403); Supabase env vars not set — skipping database upload",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "anti-scraping",
+        "issues",
+        "amazon",
+        "searches",
+        "blocked",
+        "http",
+        "anti",
+        "scraping"
+      ]
+    },
+    "memory:memory/2026-04-17.md:27:29": {
+      "key": "memory:memory/2026-04-17.md:27:29",
+      "path": "memory/2026-04-17.md",
+      "startLine": 27,
+      "endLine": 29,
+      "source": "memory",
+      "snippet": "Next Steps: Monitor Amazon block status; Consider rotating user agents or proxy for Amazon; Configure Supabase credentials for auto-upload",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "auto-upload",
+        "steps",
+        "monitor",
+        "amazon",
+        "block",
+        "status",
+        "consider",
+        "rotating"
+      ]
+    },
+    "memory:memory/2026-04-17.md:35:35": {
+      "key": "memory:memory/2026-04-17.md:35:35",
+      "path": "memory/2026-04-17.md",
+      "startLine": 35,
+      "endLine": 35,
+      "source": "memory",
+      "snippet": "Executed cron: Scrape Reddit, qualify leads, queue outreach, send digest to Ziv via Telegram",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "merchant",
+        "lead",
+        "hunter",
+        "hourly",
+        "cron",
+        "executed",
+        "scrape",
+        "reddit"
+      ],
+      "promotedAt": "2026-04-24T07:02:50.306Z"
+    },
+    "memory:memory/2026-04-17.md:38:39": {
+      "key": "memory:memory/2026-04-17.md:38:39",
+      "path": "memory/2026-04-17.md",
+      "startLine": 38,
+      "endLine": 39,
+      "source": "memory",
+      "snippet": "Results: **Status digest sent:** ✅ Kate's Telegram (chat 8475569950); **Ziv chat (5150015226):** ❌ Not found — needs to /start @Clawmerchantbot",
+      "recallCount": 0,
+      "dailyCount": 4,
+      "groundedCount": 0,
+      "totalScore": 2.48,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "results",
+        "status",
+        "digest",
+        "sent",
+        "kate's",
+        "telegram",
+        "chat",
+        "ziv"
+      ]
+    },
+    "memory:memory/2026-04-16.md:4:7": {
+      "key": "memory:memory/2026-04-16.md:4:7",
+      "path": "memory/2026-04-16.md",
+      "startLine": 4,
+      "endLine": 7,
+      "source": "memory",
+      "snippet": "Session 1 (17:28-17:31): **Task:** Continuing competitor research for 7 platforms in affiliate_flow; **Progress:** 3/7 platforms completed (LTK, Mavely, ASOS), 1 partial, 3 queued; **Output:** `/Users/katespencer/Desktop/AI_Folder/affiliate_flow/docs/research/competitors_2026-04-",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-23T07:03:06.245Z",
+      "queryHashes": [
+        "b628913e3912"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "conceptTags": [
+        "28-17",
+        "affiliate-flow",
+        "3/7",
+        "task",
+        "continuing",
+        "competitor",
+        "research",
+        "platforms"
+      ]
+    },
+    "memory:memory/2026-04-16.md:8:8": {
+      "key": "memory:memory/2026-04-16.md:8:8",
+      "path": "memory/2026-04-16.md",
+      "startLine": 8,
+      "endLine": 8,
+      "source": "memory",
+      "snippet": "Session 1 (17:28-17:31): **Follow-up:** Auto-scheduled cron job for 09:00 EDT 2026-04-17 to finish remaining platforms",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-23T07:03:06.245Z",
+      "queryHashes": [
+        "b628913e3912"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "conceptTags": [
+        "28-17",
+        "follow-up",
+        "auto-scheduled",
+        "follow",
+        "auto",
+        "scheduled",
+        "cron",
+        "job"
+      ]
+    },
+    "memory:memory/2026-04-16.md:11:13": {
+      "key": "memory:memory/2026-04-16.md:11:13",
+      "path": "memory/2026-04-16.md",
+      "startLine": 11,
+      "endLine": 13,
+      "source": "memory",
+      "snippet": "Key Findings: **LTK:** Commission 10-25%, bi-weekly payouts, brand plans $5k-$35k+/yr; **Mavely:** 177% higher commission claim, **45-day payout** (vs 120+ industry), strong micro-influencer focus; **ASOS Affiliate:** Traditional network model, 0.8-7% commissions, no platform lay",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-23T07:03:06.245Z",
+      "queryHashes": [
+        "b628913e3912"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "conceptTags": [
+        "network",
+        "10-25",
+        "bi-weekly",
+        "45-day",
+        "micro-influencer",
+        "0.8-7",
+        "key",
+        "findings"
+      ]
+    },
+    "memory:memory/2026-04-16.md:16:16": {
+      "key": "memory:memory/2026-04-16.md:16:16",
+      "path": "memory/2026-04-16.md",
+      "startLine": 16,
+      "endLine": 16,
+      "source": "memory",
+      "snippet": "The Opportunity: Mavely's fast payouts and niche-friendliness show a gap: **modest fashion-specific creator commerce with fast payouts** is underserved.",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-23T07:03:06.245Z",
+      "queryHashes": [
+        "b628913e3912"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "conceptTags": [
+        "niche-friendliness",
+        "fashion-specific",
+        "the",
+        "opportunity",
+        "mavely's",
+        "fast",
+        "payouts",
+        "niche"
+      ]
+    },
+    "memory:memory/2026-04-16.md:19:19": {
+      "key": "memory:memory/2026-04-16.md:19:19",
+      "path": "memory/2026-04-16.md",
+      "startLine": 19,
+      "endLine": 19,
+      "source": "memory",
+      "snippet": "Next: Cron job completes research tomorrow morning.",
+      "recallCount": 0,
+      "dailyCount": 3,
+      "groundedCount": 0,
+      "totalScore": 1.8599999999999999,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-21T07:01:51.880Z",
+      "lastRecalledAt": "2026-04-23T07:03:06.245Z",
+      "queryHashes": [
+        "b628913e3912"
+      ],
+      "recallDays": [
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23"
+      ],
+      "conceptTags": [
+        "cron",
+        "job",
+        "completes",
+        "research",
+        "tomorrow",
+        "morning"
+      ]
+    },
+    "memory:memory/2026-04-17.md:42:45": {
+      "key": "memory:memory/2026-04-17.md:42:45",
+      "path": "memory/2026-04-17.md",
+      "startLine": 42,
+      "endLine": 45,
+      "source": "memory",
+      "snippet": "Pipeline Stats: **Last scrape:** 2026-04-17 15:30:20; **Posts found:** 0 new (last good scrape: 3,407 at 14:42); **Errors:** 20 (Playwright connection issues with Reddit); **Qualified leads:** 15,951",
+      "recallCount": 0,
+      "dailyCount": 1,
+      "groundedCount": 0,
+      "totalScore": 0.62,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-24T07:02:50.306Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "pipeline",
+        "stats",
+        "last",
+        "scrape",
+        "posts",
+        "found",
+        "new",
+        "good"
+      ]
+    },
+    "memory:memory/2026-04-17.md:46:48": {
+      "key": "memory:memory/2026-04-17.md:46:48",
+      "path": "memory/2026-04-17.md",
+      "startLine": 46,
+      "endLine": 48,
+      "source": "memory",
+      "snippet": "Pipeline Stats: **Messaged:** 39; **Review:** 16; **DMs today:** 4/15 (within daily cap)",
+      "recallCount": 0,
+      "dailyCount": 1,
+      "groundedCount": 0,
+      "totalScore": 0.62,
+      "maxScore": 0.62,
+      "firstRecalledAt": "2026-04-24T07:02:50.306Z",
+      "lastRecalledAt": "2026-04-24T07:02:50.306Z",
+      "queryHashes": [
+        "500c0eda9949"
+      ],
+      "recallDays": [
+        "2026-04-24"
+      ],
+      "conceptTags": [
+        "4/15",
+        "pipeline",
+        "stats",
+        "messaged",
+        "review",
+        "dms",
+        "within",
+        "cap"
       ]
     }
   }

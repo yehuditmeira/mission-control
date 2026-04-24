@@ -5,12 +5,27 @@ export interface Project {
   slug?: string;
   description?: string;
   sort_order?: number;
+  parent_project_id?: number | null;
+  archived_at?: string | null;
   created_at?: string;
+  // Computed/joined
+  children?: Project[];
+}
+
+export interface ProjectPhase {
+  id: number;
+  project_id: number;
+  name: string;
+  sort_order: number;
+  archived_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Task {
   id: number;
   project_id?: number;
+  phase_id?: number | null;
   title: string;
   description?: string;
   status: 'backlog' | 'todo' | 'in_progress' | 'done';
@@ -19,11 +34,15 @@ export interface Task {
   due_date?: string;
   start_date?: string;
   sort_order?: number;
+  labels?: string[];
+  source_file?: string | null;
+  source_line?: number | null;
   created_at?: string;
   updated_at?: string;
   // Joined fields
   project_name?: string;
   project_color?: string;
+  phase_name?: string;
 }
 
 export interface Subtask {

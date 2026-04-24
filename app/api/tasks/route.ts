@@ -6,9 +6,12 @@ export async function GET(req: NextRequest) {
   const projectId = searchParams.get('project_id');
   const status = searchParams.get('status');
 
+  const phaseId = searchParams.get('phase_id');
+  const dueToday = searchParams.get('due_today');
+
   let query = supabase
     .from('tasks')
-    .select('*, projects(name, color)')
+    .select('*, projects(name, color), project_phases(name)')
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false });
 
@@ -17,6 +20,14 @@ export async function GET(req: NextRequest) {
   }
   if (status) {
     query = query.eq('status', status);
+  }
+  if (phaseId && phaseId !== 'all') {
+    query = query.eq('phase_id', phaseId);
+  }
+  if (dueToday === '1') {
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    const end = new Date();   end.setHours(23, 59, 59, 999);
+    query = query.gte('due_date', start.toISOString()).lte('due_date', end.toISOString());
   }
 
   const { data: tasks, error } = await query;
@@ -48,6 +59,7 @@ export async function GET(req: NextRequest) {
     ...task,
     project_name: task.projects?.name ?? null,
     project_color: task.projects?.color ?? null,
+    phase_name: task.project_phases?.name ?? null,
     subtasks: subtasksMap[task.id] || [],
   }));
 
@@ -56,7 +68,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { title, description, project_id, status, priority, author, due_date, start_date } = body;
+  const { title, description, project_id, phase_id, status, priority, author, due_date, start_date, labels } = body;
 
   if (!title) {
     return NextResponse.json({ error: 'title required' }, { status: 400 });
@@ -78,11 +90,13 @@ export async function POST(req: NextRequest) {
       title,
       description: description || null,
       project_id: project_id || null,
+      phase_id: phase_id || null,
       status: status || 'todo',
       priority: priority || 'medium',
       author: author || 'user',
       due_date: due_date || null,
       start_date: start_date || null,
+      labels: Array.isArray(labels) ? labels : [],
       sort_order: sortOrder,
     })
     .select()

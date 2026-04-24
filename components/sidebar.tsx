@@ -35,6 +35,8 @@ import { ProjectTabs } from './project-tabs';
 const navItems = [
   { href: '/', label: 'Mission Control', icon: LayoutDashboard },
   { href: '/this-week', label: 'This Week', icon: Rocket },
+  { href: '/admin/kanban', label: 'Kanban', icon: Columns3 },
+  { href: '/admin/timeline', label: 'Timeline', icon: GanttChart },
   { href: '/milestones', label: 'Milestones', icon: Target },
   { href: '/library', label: 'Library', icon: Library },
   { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
@@ -51,7 +53,7 @@ const navItems = [
 ];
 
 // Pages that show project tabs in sidebar
-const projectSpecificPages = ['/kanban', '/gantt'];
+const projectSpecificPages = ['/admin/kanban', '/admin/timeline'];
 
 // Static mock agent data — structured for live data later
 const agentsByProject: Record<string, { name: string; status: 'working' | 'idle' | 'blocked'; task: string }[]> = {
@@ -232,7 +234,7 @@ export function Sidebar() {
             </div>
             <div className="space-y-0.5 mb-4" onClick={() => setIsOpen(false)}>
               <Link
-                href="/kanban"
+                href="/admin/kanban"
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/kanban'
@@ -244,7 +246,7 @@ export function Sidebar() {
                 Kanban
               </Link>
               <Link
-                href="/gantt"
+                href="/admin/timeline"
                 className={cn(
                   'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                   pathname === '/gantt'

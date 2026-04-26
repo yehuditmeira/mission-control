@@ -202,7 +202,7 @@ export default function DashboardPage() {
       {/* At-a-glance tiles — real counts */}
       {counts && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          <Tile href="/tasks" icon={<CheckSquare size={14} />} label="Tasks" value={counts.tasks} accent="hsl(var(--primary))" />
+          <Tile href="/workspace" icon={<CheckSquare size={14} />} label="Tasks" value={counts.tasks} accent="hsl(var(--primary))" />
           <Tile href="/calendar" icon={<Calendar size={14} />} label="Events" value={counts.events} accent="hsl(var(--accent))" />
           <Tile href="/cron" icon={<Zap size={14} />} label="Cron Jobs" value={counts.cron} accent="#fbbf24" />
           <Tile href="/org" icon={<Network size={14} />} label="Agents" value={12} accent="#c084fc" subtitle="across 4 projects" />

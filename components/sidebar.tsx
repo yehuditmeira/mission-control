@@ -35,25 +35,22 @@ import { ProjectTabs } from './project-tabs';
 const navItems = [
   { href: '/', label: 'Mission Control', icon: LayoutDashboard },
   { href: '/this-week', label: 'This Week', icon: Rocket },
-  { href: '/admin/kanban', label: 'Kanban', icon: Columns3 },
-  { href: '/admin/timeline', label: 'Timeline', icon: GanttChart },
+  { href: '/kanban', label: 'Kanban', icon: Columns3 },
+  { href: '/gantt', label: 'Timeline', icon: GanttChart },
+  { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
+  { href: '/calendar', label: 'Calendar', icon: Calendar },
   { href: '/milestones', label: 'Milestones', icon: Target },
   { href: '/library', label: 'Library', icon: Library },
-  { href: '/workspace', label: 'Workspace', icon: PanelsLeftRight },
-  { href: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { href: '/notes', label: 'Notes', icon: StickyNote },
-  { href: '/calendar', label: 'Calendar', icon: Calendar },
   { href: '/cron', label: 'Cron Jobs', icon: Clock },
   { href: '/operations', label: 'Operations', icon: Activity },
-  { href: '/leads', label: 'Lead Digests', icon: Inbox },
-  { href: '/memory', label: 'Memory', icon: Brain },
   { href: '/org', label: 'Organization', icon: Network },
   { href: '/office', label: 'Agent Office', icon: Building2 },
   { href: '/docs', label: 'Docs', icon: FileText },
+  { href: '/memory', label: 'Memory', icon: Brain },
 ];
 
 // Pages that show project tabs in sidebar
-const projectSpecificPages = ['/admin/kanban', '/admin/timeline'];
+const projectSpecificPages = ['/kanban', '/gantt'];
 
 // Static mock agent data — structured for live data later
 const agentsByProject: Record<string, { name: string; status: 'working' | 'idle' | 'blocked'; task: string }[]> = {
@@ -223,44 +220,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Views */}
-      <div className="px-2 pb-4">
-        {!isProjectView && (
-          <>
-            <div className="px-4 mb-2">
-              <h2 className="text-[10px] font-semibold text-[hsl(var(--foreground-dim))] uppercase tracking-wider">
-                Views
-              </h2>
-            </div>
-            <div className="space-y-0.5 mb-4" onClick={() => setIsOpen(false)}>
-              <Link
-                href="/admin/kanban"
-                className={cn(
-                  'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
-                  pathname === '/kanban'
-                    ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium'
-                    : 'text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
-                )}
-              >
-                <Columns3 className={cn('w-4 h-4', pathname === '/kanban' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--foreground-dim))]')} />
-                Kanban
-              </Link>
-              <Link
-                href="/admin/timeline"
-                className={cn(
-                  'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
-                  pathname === '/gantt'
-                    ? 'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] font-medium'
-                    : 'text-[hsl(var(--foreground-dim))] hover:bg-[hsl(var(--secondary))] hover:text-[hsl(var(--foreground))]'
-                )}
-              >
-                <GanttChart className={cn('w-4 h-4', pathname === '/gantt' ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--foreground-dim))]')} />
-                Timeline
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
     </aside>
     </>
   );

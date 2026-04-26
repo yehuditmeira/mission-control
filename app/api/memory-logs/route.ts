@@ -1,52 +1,39 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
-const MEMORY_DIR = path.join(process.cwd(), '..', 'memory');
+export const dynamic = 'force-dynamic';
 
+// Reads from the memory_logs Supabase table (populated by
+// scripts/import_memory_logs.mjs). Was filesystem-backed; switched to DB so
+// the page works on Vercel where the local memory/ folder isn't deployed.
 export async function GET() {
-  try {
-    if (!fs.existsSync(MEMORY_DIR)) {
-      return NextResponse.json([]);
-    }
+  const { data, error } = await supabase
+    .from('memory_logs')
+    .select('id, filename, name, description, type, date, content')
+    .order('date', { ascending: false, nullsFirst: false })
+    .order('filename', { ascending: true });
 
-    const files = fs.readdirSync(MEMORY_DIR).filter(f => f.endsWith('.md'));
-    const logs = files.map(filename => {
-      const content = fs.readFileSync(path.join(MEMORY_DIR, filename), 'utf-8');
-      const isDaily = /^\d{4}-\d{2}-\d{2}\.md$/.test(filename);
-
-      // Parse frontmatter if present
-      let name = filename.replace('.md', '');
-      let description = '';
-      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      if (frontmatterMatch) {
-        const fm = frontmatterMatch[1];
-        const nameMatch = fm.match(/^name:\s*(.+)$/m);
-        const descMatch = fm.match(/^description:\s*(.+)$/m);
-        if (nameMatch) name = nameMatch[1].trim();
-        if (descMatch) description = descMatch[1].trim();
-      }
-
-      return {
-        filename,
-        name,
-        description,
-        type: isDaily ? 'daily' : 'durable',
-        date: isDaily ? filename.replace('.md', '') : null,
-        size: content.length,
-        preview: content.replace(/^---[\s\S]*?---\n*/, '').slice(0, 200),
-      };
-    });
-
-    // Sort: daily logs by date desc, then durable files
-    logs.sort((a, b) => {
-      if (a.type === 'daily' && b.type === 'daily') return (b.date || '').localeCompare(a.date || '');
-      if (a.type === 'daily') return -1;
-      return 1;
-    });
-
-    return NextResponse.json(logs);
-  } catch {
+  if (error) {
+    console.error('Error fetching memory logs:', error);
     return NextResponse.json([]);
   }
+
+  const logs = (data || []).map((row) => ({
+    filename: row.filename,
+    name: row.name,
+    description: row.description || '',
+    type: row.type as 'daily' | 'durable',
+    date: row.date,
+    size: row.content.length,
+    preview: (row.content.replace(/^---[\s\S]*?---\n*/, '').slice(0, 200)),
+  }));
+
+  // Sort: daily logs newest-first, then durable.
+  logs.sort((a, b) => {
+    if (a.type === 'daily' && b.type === 'daily') return (b.date || '').localeCompare(a.date || '');
+    if (a.type === 'daily') return -1;
+    return 1;
+  });
+
+  return NextResponse.json(logs);
 }

@@ -1,26 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
-const MEMORY_DIR = path.join(process.cwd(), '..', 'memory');
+export const dynamic = 'force-dynamic';
 
 export async function GET(_req: NextRequest, { params }: { params: { filename: string } }) {
-  try {
-    const filename = params.filename.endsWith('.md') ? params.filename : `${params.filename}.md`;
-    const filePath = path.join(MEMORY_DIR, filename);
+  const filename = decodeURIComponent(params.filename);
+  const lookup = filename.endsWith('.md') ? filename : `${filename}.md`;
 
-    // Basic path traversal protection
-    if (!filePath.startsWith(MEMORY_DIR)) {
-      return NextResponse.json({ error: 'invalid path' }, { status: 400 });
-    }
+  const { data, error } = await supabase
+    .from('memory_logs')
+    .select('filename, content')
+    .eq('filename', lookup)
+    .maybeSingle();
 
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'not found' }, { status: 404 });
-    }
-
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return NextResponse.json({ filename, content });
-  } catch {
+  if (error) {
+    console.error('Error reading memory log:', error);
     return NextResponse.json({ error: 'read error' }, { status: 500 });
   }
+  if (!data) return NextResponse.json({ error: 'not found' }, { status: 404 });
+
+  return NextResponse.json({ filename: data.filename, content: data.content });
 }

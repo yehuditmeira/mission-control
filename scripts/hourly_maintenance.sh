@@ -11,6 +11,7 @@ MC_REPO="/Users/katespencer/Desktop/AI_Folder/mission-control"
 # `|| true` so a failure here doesn't kill the refresh job.
 if command -v node >/dev/null 2>&1; then
   node "$MC_REPO/scripts/import_tasks_from_md.mjs" || true
+  node "$MC_REPO/scripts/import_memory_logs.mjs" || true
 fi
 
 echo "hourly maintenance completed: $(date)"

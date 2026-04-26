@@ -109,3 +109,25 @@ Yomy's Rules. Follow these every time.
 
 3. My name is Yomy. Not Kate. Use it.
 ```
+
+---
+
+## Session 2 — 2026-04-26 (post-Shabbat cleanup)
+
+### Shipped
+1. **Sidebar fixed** — Kanban + Timeline moved to main nav, point at the real `/kanban` and `/gantt` (not OC's old `/admin/*` placeholders). Tasks/Notes/Lead Digests entries removed (redundant with Workspace).
+2. **Pages deleted** — `/tasks`, `/notes` (kept `/notes/[id]` for permalinks), `/leads`, `/api/lead-digests`.
+3. **Memory logs moved to Supabase** — was reading filesystem (broken on Vercel). Migration `000009_memory_logs.sql` + `scripts/import_memory_logs.mjs` + API rewrites. 4 files imported. Wired into hourly cron.
+4. **Workspace task calendar icon** — every task gets a calendar icon → date+time picker → "Also add to calendar" toggle. Tasks with due dates show a date pill and render on `/calendar`.
+5. **Auto-deploy hook installed globally** — `~/.git-hooks/post-commit` + `git config --global core.hooksPath ~/.git-hooks`. Every commit on main in any Vercel-linked repo (mission-control, Affiliate_Flow, Merchant_Services, Merchant_Services_v2, rsshub-private, plus any future repo) auto-deploys via `vercel --prod`. Reproducible script: `~/.claude/setup-auto-deploy.sh`.
+
+### Discovered + flagged
+- **Vercel's GitHub auto-deploy webhook silently broken for 5+ days.** Every push went to GitHub but Vercel never built. The new hook bypasses the broken webhook entirely. The underlying webhook issue is unfixed but no longer matters.
+
+### Production URLs to bookmark
+- Mission Control: https://mission-control-sigma-tan.vercel.app  ← always points to latest deploy
+- (Per-deploy URLs like `mission-control-XXXX-yehuditmeiras-projects.vercel.app` are frozen snapshots — never bookmark those.)
+
+### Notes for next session
+- Timeline page (`/gantt`) is empty until tasks have dates. Use the Workspace calendar icon to add dates → they show on Timeline + Calendar.
+- The placeholder pages at `/admin/kanban` and `/admin/timeline` are orphaned (nothing in nav links to them). Safe to delete in a future cleanup.

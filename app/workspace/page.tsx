@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Task, Note } from '@/lib/types';
 import {
   Pin, Trash2, StickyNote, Square, CheckSquare,
-  ChevronDown, ChevronRight, ArrowRightLeft,
+  ChevronDown, ChevronRight, ArrowRightLeft, Calendar as CalendarIcon, X,
 } from 'lucide-react';
 
 type NoteWithProject = Note & { project_name?: string; project_color?: string };
@@ -36,6 +36,12 @@ function WorkspaceContent() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+
+  // Date/time picker state — only one task's picker is open at a time
+  const [datePickerTaskId, setDatePickerTaskId] = useState<number | null>(null);
+  const [pickerDate, setPickerDate] = useState<string>('');
+  const [pickerTime, setPickerTime] = useState<string>('');
+  const [pickerAsEvent, setPickerAsEvent] = useState<boolean>(false);
 
   // Notes state
   const [notes, setNotes] = useState<NoteWithProject[]>([]);
@@ -78,6 +84,68 @@ function WorkspaceContent() {
 
   const deleteTask = async (id: number) => {
     await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+    fetchTasks();
+  };
+
+  const openDatePicker = (task: Task) => {
+    setDatePickerTaskId(task.id);
+    if (task.due_date) {
+      const d = new Date(task.due_date);
+      setPickerDate(d.toISOString().slice(0, 10));
+      // Default to empty time slot when no explicit time portion (midnight = "all-day")
+      const hh = d.getHours();
+      const mm = d.getMinutes();
+      setPickerTime(hh === 0 && mm === 0 ? '' : `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
+    } else {
+      setPickerDate(new Date().toISOString().slice(0, 10));
+      setPickerTime('');
+    }
+    setPickerAsEvent(false);
+  };
+
+  const closeDatePicker = () => {
+    setDatePickerTaskId(null);
+    setPickerDate('');
+    setPickerTime('');
+    setPickerAsEvent(false);
+  };
+
+  const saveDueDate = async (task: Task) => {
+    if (!pickerDate) { closeDatePicker(); return; }
+    // Combine date + optional time into an ISO timestamp
+    const dueIso = pickerTime
+      ? new Date(`${pickerDate}T${pickerTime}:00`).toISOString()
+      : new Date(`${pickerDate}T00:00:00`).toISOString();
+
+    await fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ due_date: dueIso }),
+    });
+
+    if (pickerAsEvent) {
+      await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: task.title,
+          start_datetime: dueIso,
+          all_day: !pickerTime,
+          project_id: task.project_id ?? null,
+        }),
+      });
+    }
+    closeDatePicker();
+    fetchTasks();
+  };
+
+  const clearDueDate = async (task: Task) => {
+    await fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ due_date: null }),
+    });
+    closeDatePicker();
     fetchTasks();
   };
 
@@ -178,12 +246,72 @@ function WorkspaceContent() {
                       {progress && (
                         <span className="text-xs text-muted-foreground">{progress.done}/{progress.total}</span>
                       )}
+                      {task.due_date && (
+                        <span className="text-[10px] text-neutral-500 px-1.5 py-0.5 rounded bg-neutral-50 border border-neutral-200">
+                          {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          {(() => { const d = new Date(task.due_date); return (d.getHours() || d.getMinutes()) ? ` ${d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''; })()}
+                        </span>
+                      )}
                       <Badge className={`text-[10px] ${statusColors[task.status]}`}>{task.status.replace('_', ' ')}</Badge>
                       <Badge className={`text-[10px] ${priorityColors[task.priority]}`}>{task.priority}</Badge>
+                      <button
+                        onClick={() => datePickerTaskId === task.id ? closeDatePicker() : openDatePicker(task)}
+                        className={`p-1 rounded ${task.due_date ? 'text-amber-500 hover:text-amber-600' : 'text-neutral-300 hover:text-amber-500'}`}
+                        title={task.due_date ? 'Edit due date' : 'Add due date'}
+                      >
+                        <CalendarIcon className="w-3.5 h-3.5" />
+                      </button>
                       <button onClick={() => deleteTask(task.id)} className="text-neutral-300 hover:text-red-500">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                    {datePickerTaskId === task.id && (
+                      <div className="border-t border-neutral-100 px-3 py-3 bg-neutral-50 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            type="date"
+                            value={pickerDate}
+                            onChange={(e) => setPickerDate(e.target.value)}
+                            className="px-2 py-1 text-sm border border-neutral-200 rounded"
+                          />
+                          <input
+                            type="time"
+                            value={pickerTime}
+                            onChange={(e) => setPickerTime(e.target.value)}
+                            placeholder="optional"
+                            className="px-2 py-1 text-sm border border-neutral-200 rounded"
+                          />
+                          <label className="flex items-center gap-1.5 text-xs text-neutral-600 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={pickerAsEvent}
+                              onChange={(e) => setPickerAsEvent(e.target.checked)}
+                              className="rounded"
+                            />
+                            Also add to calendar
+                          </label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => saveDueDate(task)}
+                            className="px-3 py-1 text-xs bg-neutral-900 text-white rounded hover:bg-neutral-800"
+                          >
+                            Save
+                          </button>
+                          <button onClick={closeDatePicker} className="px-3 py-1 text-xs border border-neutral-200 rounded hover:bg-white">
+                            Cancel
+                          </button>
+                          {task.due_date && (
+                            <button
+                              onClick={() => clearDueDate(task)}
+                              className="ml-auto inline-flex items-center gap-1 px-2 py-1 text-xs text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-3 h-3" /> Clear date
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     {expanded && task.subtasks && task.subtasks.length > 0 && (
                       <div className="border-t border-neutral-100 px-3 py-2 pl-10 space-y-1">
                         {task.subtasks.map(sub => (

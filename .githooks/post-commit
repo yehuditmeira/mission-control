@@ -1,0 +1,19 @@
+#!/bin/bash
+# Auto-deploy to Vercel after every commit on main.
+# Runs in the background so commits don't block. Logs to /tmp/.
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+[ "$BRANCH" = "main" ] || exit 0
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+LOG="/tmp/auto-deploy-$(basename "$REPO_ROOT")-$(date +%Y%m%d-%H%M%S).log"
+
+# Detached background process — survives the commit returning.
+(
+  cd "$REPO_ROOT"
+  /opt/homebrew/bin/vercel --prod --yes >"$LOG" 2>&1
+  echo "[auto-deploy] exit=$?" >> "$LOG"
+) </dev/null >/dev/null 2>&1 &
+disown 2>/dev/null || true
+
+echo "→ Vercel auto-deploy queued (log: $LOG)"
